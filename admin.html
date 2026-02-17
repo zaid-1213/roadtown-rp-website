@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Town RP - لوحة الإدارة</title>
+    <link rel="stylesheet" href="styles-premium.css">
+    <link rel="stylesheet" href="styles-pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .admin-stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .admin-stat-card:hover {
+            border-color: rgba(230,126,34,0.3);
+            transform: translateY(-3px);
+        }
+        .admin-stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #e67e22;
+            display: block;
+        }
+        .admin-stat-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+        .admin-table-wrap {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .admin-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .admin-table-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .admin-search {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 8px 16px;
+            color: #fff;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            width: 250px;
+            transition: border-color 0.3s;
+        }
+        .admin-search:focus {
+            border-color: rgba(230,126,34,0.5);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th {
+            background: rgba(255,255,255,0.03);
+            padding: 12px 16px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .admin-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+        .admin-table tr:hover td {
+            background: rgba(230,126,34,0.03);
+        }
+        .admin-user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .admin-user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .admin-user-name {
+            font-weight: 700;
+        }
+        .admin-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .admin-badge-admin {
+            background: rgba(230,126,34,0.15);
+            color: #e67e22;
+            border: 1px solid rgba(230,126,34,0.3);
+        }
+        .admin-badge-user {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .admin-badge-discord {
+            background: rgba(88,101,242,0.15);
+            color: #7289da;
+            border: 1px solid rgba(88,101,242,0.3);
+        }
+        .admin-badge-steam {
+            background: rgba(42,71,94,0.2);
+            color: #66c0f4;
+            border: 1px solid rgba(42,71,94,0.4);
+        }
+        .admin-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .admin-action-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .admin-btn-promote {
+            background: rgba(230,126,34,0.1);
+            color: #e67e22;
+            border: 1px solid rgba(230,126,34,0.2);
+        }
+        .admin-btn-promote:hover {
+            background: rgba(230,126,34,0.2);
+        }
+        .admin-btn-demote {
+            background: rgba(255,165,0,0.1);
+            color: #ffa500;
+            border: 1px solid rgba(255,165,0,0.2);
+        }
+        .admin-btn-demote:hover {
+            background: rgba(255,165,0,0.2);
+        }
+        .admin-btn-delete {
+            background: rgba(255,68,68,0.1);
+            color: #ff4444;
+            border: 1px solid rgba(255,68,68,0.2);
+        }
+        .admin-btn-delete:hover {
+            background: rgba(255,68,68,0.2);
+        }
+        .admin-empty {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(255,255,255,0.3);
+        }
+        .admin-date {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
+        .admin-id-text {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+        @media (max-width: 768px) {
+            .admin-table-wrap { overflow-x: auto; }
+            .admin-table { min-width: 700px; }
+            .admin-search { width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/images/Main.png" alt="Road Town Logo" class="logo-img">
+                <h1>Road Town</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li class="nav-protected"><a href="features.html">المميزات</a></li>
+                    <li class="nav-protected"><a href="shop.html">المتجر</a></li>
+                    <li><a href="contact.html">اتصل بنا</a></li>
+                    <li class="nav-admin-link"><a href="admin.html" class="active">الإدارة</a></li>
+                    <li class="nav-login-link"><a href="login.html">تسجيل دخول</a></li>
+                    <li class="nav-user-info"></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <div class="page-hero-overlay"></div>
+            <div class="page-hero-content">
+                <div class="page-hero-tag">👑 Admin Panel</div>
+                <h1 class="page-hero-title">لوحة الإدارة</h1>
+                <p class="page-hero-desc">إدارة المستخدمين والصلاحيات</p>
+            </div>
+        </section>
+
+        <section class="pg-section pg-section-dark">
+            <div class="container">
+                <div class="admin-stats" id="adminStats">
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-number" id="totalUsers">-</span>
+                        <span class="admin-stat-label">إجمالي المستخدمين</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-number" id="totalAdmins">-</span>
+                        <span class="admin-stat-label">الإداريين</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-number" id="discordUsers">-</span>
+                        <span class="admin-stat-label">عبر Discord</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-number" id="steamUsers">-</span>
+                        <span class="admin-stat-label">عبر Steam</span>
+                    </div>
+                </div>
+
+                <div class="admin-table-wrap">
+                    <div class="admin-table-header">
+                        <h3>👥 المستخدمين المسجلين</h3>
+                        <input type="text" class="admin-search" id="searchInput" placeholder="🔍 بحث عن مستخدم...">
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>المستخدم</th>
+                                <th>ID</th>
+                                <th>المنصة</th>
+                                <th>الرتبة</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>آخر دخول</th>
+                                <th>عدد الدخول</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="8" class="admin-empty">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="pg-footer-bottom">
+                <p>© 2026 Road Town RP - لوحة الإدارة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        let allUsers = [];
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users');
+                if (res.status === 403) {
+                    document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="8" class="admin-empty">⛔ ليس لديك صلاحية</td></tr>';
+                    return;
+                }
+                const data = await res.json();
+                allUsers = data.users;
+                updateStats(data.users);
+                renderUsers(data.users);
+            } catch (e) {
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="8" class="admin-empty">❌ خطأ في تحميل البيانات</td></tr>';
+            }
+        }
+
+        function updateStats(users) {
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('totalAdmins').textContent = users.filter(u => u.isAdmin).length;
+            document.getElementById('discordUsers').textContent = users.filter(u => u.provider === 'discord').length;
+            document.getElementById('steamUsers').textContent = users.filter(u => u.provider === 'steam').length;
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="admin-empty">لا يوجد مستخدمين مسجلين</td></tr>';
+                return;
+            }
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>
+                        <div class="admin-user-cell">
+                            <img src="${u.avatar || 'assets/images/Main.png'}" alt="${u.username}" class="admin-user-avatar">
+                            <span class="admin-user-name">${u.username}</span>
+                        </div>
+                    </td>
+                    <td><span class="admin-id-text">${u.id}</span></td>
+                    <td><span class="admin-badge admin-badge-${u.provider}">${u.provider === 'discord' ? '🎮 Discord' : '🎮 Steam'}</span></td>
+                    <td><span class="admin-badge ${u.isAdmin ? 'admin-badge-admin' : 'admin-badge-user'}">${u.isAdmin ? '👑 أدمن' : '👤 عضو'}</span></td>
+                    <td><span class="admin-date">${formatDate(u.registeredAt)}</span></td>
+                    <td><span class="admin-date">${formatDate(u.lastLogin)}</span></td>
+                    <td>${u.loginCount || 1}</td>
+                    <td>
+                        <div class="admin-actions">
+                            ${u.isAdmin
+                                ? (u.id !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-demote" onclick="removeAdmin('${u.id}')">إزالة أدمن</button>` : '<span style="color:#e67e22;font-size:0.8rem">المالك</span>')
+                                : `<button class="admin-action-btn admin-btn-promote" onclick="addAdmin('${u.id}')">ترقية أدمن</button>`
+                            }
+                            ${u.id !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-delete" onclick="deleteUser('${u.id}','${u.provider}')">حذف</button>` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addAdmin(userId) {
+            if (!confirm('هل تريد ترقية هذا المستخدم لأدمن؟')) return;
+            const res = await fetch('/api/admin/add-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            const data = await res.json();
+            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
+            loadUsers();
+        }
+
+        async function removeAdmin(userId) {
+            if (!confirm('هل تريد إزالة صلاحية الأدمن من هذا المستخدم؟')) return;
+            const res = await fetch('/api/admin/remove-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
+            const data = await res.json();
+            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
+            loadUsers();
+        }
+
+        async function deleteUser(userId, provider) {
+            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+            const res = await fetch('/api/admin/delete-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, provider })
+            });
+            const data = await res.json();
+            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
+            loadUsers();
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                u.username.toLowerCase().includes(q) ||
+                u.id.includes(q) ||
+                u.provider.includes(q)
+            );
+            renderUsers(filtered);
+        });
+
+        // Load on page ready
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+[build]
+  publish = "."
+  command = ""
+
+# No redirects needed - static multi-page site

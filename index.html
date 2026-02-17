@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Town RP - الرئيسية</title>
+    <link rel="stylesheet" href="styles-premium.css">
+    <link rel="stylesheet" href="styles-home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/images/Main.png" alt="Road Town Logo" class="logo-img">
+                <h1>Road Town</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html" class="active">الرئيسية</a></li>
+                    <li class="nav-protected"><a href="features.html">المميزات</a></li>
+                    <li class="nav-protected"><a href="shop.html">المتجر</a></li>
+                    <li><a href="contact.html">اتصل بنا</a></li>
+                    <li class="nav-admin-link" style="display:none"><a href="admin.html">الإدارة</a></li>
+                    <li class="nav-login-link"><a href="login.html">تسجيل دخول</a></li>
+                    <li class="nav-user-info"></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="home-hero">
+            <div class="home-hero-overlay"></div>
+            <div class="home-hero-glow"></div>
+            <div class="home-hero-content">
+                <div class="home-badge">FiveM Server</div>
+                <h1 class="home-title">
+                    <span class="home-title-line1">ROAD</span>
+                    <span class="home-title-line2">TOWN</span>
+                    <span class="home-title-rp">R P</span>
+                </h1>
+                <p class="home-subtitle">أفضل سيرفر FiveM في المملكة العربية السعودية</p>
+                <p class="home-desc">انضم لأكثر من 100 لاعب في عالم مفتوح مليء بالمغامرات والتحديات</p>
+                <div class="home-hero-buttons">
+                    <button class="home-btn-primary" onclick="connectToServer()">
+                        <span class="home-btn-icon">▶</span>
+                        اتصل بالسيرفر
+                    </button>
+                    <a href="https://discord.gg/QkdTEyjY" class="home-btn-discord" target="_blank">
+                        <span class="home-btn-icon">💬</span>
+                        انضم للديسكورد
+                    </a>
+                </div>
+                <div class="home-hero-stats">
+                    <div class="home-hero-stat">
+                        <span class="home-hero-stat-num" data-count="128">0</span>
+                        <span class="home-hero-stat-label">لاعب نشط</span>
+                    </div>
+                    <div class="home-hero-stat-divider"></div>
+                    <div class="home-hero-stat">
+                        <span class="home-hero-stat-num">24/7</span>
+                        <span class="home-hero-stat-label">أونلاين</span>
+                    </div>
+                    <div class="home-hero-stat-divider"></div>
+                    <div class="home-hero-stat">
+                        <span class="home-hero-stat-num" data-count="56">0</span>
+                        <span class="home-hero-stat-label">وظيفة</span>
+                    </div>
+                    <div class="home-hero-stat-divider"></div>
+                    <div class="home-hero-stat">
+                        <span class="home-hero-stat-num" data-count="200">0</span>
+                        <span class="home-hero-stat-label">سيارة</span>
+                    </div>
+                </div>
+            </div>
+            <div class="home-scroll-indicator">
+                <span>اكتشف المزيد</span>
+                <div class="home-scroll-arrow"></div>
+            </div>
+        </section>
+
+        <!-- Features Preview -->
+        <section class="home-features">
+            <div class="container">
+                <div class="home-section-header">
+                    <span class="home-section-tag">لماذا نحن؟</span>
+                    <h2 class="home-section-title">ما يميز Road Town</h2>
+                    <div class="home-section-line"></div>
+                </div>
+                <div class="home-features-grid">
+                    <div class="home-feature-card">
+                        <div class="home-feature-icon-wrap">
+                            <span class="home-feature-icon">🏎️</span>
+                        </div>
+                        <h3>سيارات حصرية</h3>
+                        <p>أكثر من 200 سيارة معدلة بأداء واقعي وتفاصيل مذهلة</p>
+                        <div class="home-feature-glow"></div>
+                    </div>
+                    <div class="home-feature-card">
+                        <div class="home-feature-icon-wrap">
+                            <span class="home-feature-icon">💼</span>
+                        </div>
+                        <h3>وظائف متنوعة</h3>
+                        <p>أكثر من 50 وظيفة مختلفة من شرطي إلى رجل أعمال</p>
+                        <div class="home-feature-glow"></div>
+                    </div>
+                    <div class="home-feature-card">
+                        <div class="home-feature-icon-wrap">
+                            <span class="home-feature-icon">🏠</span>
+                        </div>
+                        <h3>عقارات فاخرة</h3>
+                        <p>امتلك منزلك الخاص وخصصه بالطريقة التي تريدها</p>
+                        <div class="home-feature-glow"></div>
+                    </div>
+                    <div class="home-feature-card">
+                        <div class="home-feature-icon-wrap">
+                            <span class="home-feature-icon">⚡</span>
+                        </div>
+                        <h3>أداء عالي</h3>
+                        <p>سيرفر محسّن بأحدث التقنيات لتجربة لعب سلسة بدون تقطيع</p>
+                        <div class="home-feature-glow"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Server Info -->
+        <section class="home-server-info">
+            <div class="container">
+                <div class="home-server-grid">
+                    <div class="home-server-text">
+                        <span class="home-section-tag">عن السيرفر</span>
+                        <h2 class="home-section-title">تجربة لعب لا مثيل لها</h2>
+                        <div class="home-section-line home-section-line-right"></div>
+                        <p class="home-server-desc">Road Town RP هو سيرفر FiveM عربي متكامل يقدم تجربة لعب أدوار واقعية ومميزة. نحن نسعى لتقديم أفضل تجربة ممكنة للاعبين العرب.</p>
+                        <ul class="home-server-list">
+                            <li>
+                                <span class="home-list-icon">✓</span>
+                                <span>نظام اقتصادي متكامل وواقعي</span>
+                            </li>
+                            <li>
+                                <span class="home-list-icon">✓</span>
+                                <span>فريق إدارة نشط ومتعاون</span>
+                            </li>
+                            <li>
+                                <span class="home-list-icon">✓</span>
+                                <span>تحديثات مستمرة ومحتوى جديد</span>
+                            </li>
+                            <li>
+                                <span class="home-list-icon">✓</span>
+                                <span>مجتمع ودود ومرحب بالجميع</span>
+                            </li>
+                            <li>
+                                <span class="home-list-icon">✓</span>
+                                <span>دعم فني على مدار الساعة</span>
+                            </li>
+                        </ul>
+                        <div class="home-hero-buttons" style="justify-content: flex-start;">
+                            <a href="features.html" class="home-btn-primary">
+                                <span class="home-btn-icon">🔍</span>
+                                اكتشف المميزات
+                            </a>
+                        </div>
+                    </div>
+                    <div class="home-server-visual">
+                        <div class="home-server-card-stack">
+                            <div class="home-floating-card home-fc-1">
+                                <span>🎮</span>
+                                <div>
+                                    <strong>FiveM</strong>
+                                    <small>منصة اللعب</small>
+                                </div>
+                            </div>
+                            <div class="home-floating-card home-fc-2">
+                                <span>🛡️</span>
+                                <div>
+                                    <strong>Anti-Cheat</strong>
+                                    <small>حماية متقدمة</small>
+                                </div>
+                            </div>
+                            <div class="home-floating-card home-fc-3">
+                                <span>🌍</span>
+                                <div>
+                                    <strong>عالم مفتوح</strong>
+                                    <small>خريطة كاملة</small>
+                                </div>
+                            </div>
+                            <div class="home-floating-card home-fc-4">
+                                <span>🎯</span>
+                                <div>
+                                    <strong>مهام يومية</strong>
+                                    <small>تحديات جديدة</small>
+                                </div>
+                            </div>
+                            <div class="home-server-main-visual">
+                                <div class="home-visual-ring"></div>
+                                <div class="home-visual-ring home-visual-ring-2"></div>
+                                <div class="home-visual-center">
+                                    <img src="assets/images/Main.png" alt="RT" class="home-visual-logo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="home-cta">
+            <div class="home-cta-glow"></div>
+            <div class="container">
+                <div class="home-cta-content">
+                    <h2>جاهز للمغامرة؟</h2>
+                    <p>انضم الآن وابدأ رحلتك في عالم Road Town RP</p>
+                    <div class="home-hero-buttons">
+                        <button class="home-btn-primary home-btn-lg" onclick="connectToServer()">
+                            <span class="home-btn-icon">🚀</span>
+                            ابدأ اللعب الآن
+                        </button>
+                        <a href="shop.html" class="home-btn-outline">
+                            <span class="home-btn-icon">🛒</span>
+                            زيارة المتجر
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="home-footer-grid">
+                <div class="home-footer-brand">
+                    <div class="logo">
+                        <img src="assets/images/Main.png" alt="Road Town Logo" class="logo-img">
+                        <h3>Road Town RP</h3>
+                    </div>
+                    <p>أفضل سيرفر FiveM عربي - انضم لمجتمعنا الآن</p>
+                </div>
+                <div class="home-footer-links">
+                    <h4>روابط سريعة</h4>
+                    <a href="index.html">الرئيسية</a>
+                    <a href="features.html">المميزات</a>
+                    <a href="shop.html">المتجر</a>
+                    <a href="contact.html">اتصل بنا</a>
+                </div>
+                <div class="home-footer-links">
+                    <h4>تواصل معنا</h4>
+                    <a href="https://discord.gg/QkdTEyjY" target="_blank">Discord</a>
+                    <a href="#">YouTube</a>
+                    <a href="#">Twitter</a>
+                    <a href="contact.html">الدعم الفني</a>
+                </div>
+                <div class="home-footer-links">
+                    <h4>معلومات السيرفر</h4>
+                    <a href="#">connect.roadtown.sa</a>
+                    <a href="#">الحالة: متصل</a>
+                    <a href="#">اللاعبين: 128/200</a>
+                </div>
+            </div>
+            <div class="home-footer-bottom">
+                <p>© 2026 Road Town RP - جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="home.js"></script>
+</body>
+</html>

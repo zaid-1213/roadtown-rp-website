@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Town RP - المتجر</title>
+    <link rel="stylesheet" href="styles-premium.css">
+    <link rel="stylesheet" href="styles-pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="assets/images/Main.png" alt="Road Town Logo" class="logo-img">
+                <h1>Road Town</h1>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li class="nav-protected"><a href="features.html">المميزات</a></li>
+                    <li class="nav-protected"><a href="shop.html" class="active">المتجر</a></li>
+                    <li><a href="contact.html">اتصل بنا</a></li>
+                    <li class="nav-admin-link" style="display:none"><a href="admin.html">الإدارة</a></li>
+                    <li class="nav-login-link"><a href="login.html">تسجيل دخول</a></li>
+                    <li class="nav-user-info"></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="page-hero">
+            <div class="page-hero-overlay"></div>
+            <div class="page-hero-content">
+                <div class="page-hero-tag">Shop</div>
+                <h1 class="page-hero-title">المتجر</h1>
+                <p class="page-hero-desc">احصل على أفضل السيارات والعروض الحصرية في السيرفر</p>
+            </div>
+        </section>
+
+        <section class="pg-section pg-section-dark">
+            <div class="container">
+                <div class="pg-section-header">
+                    <span class="pg-section-tag">السيارات المتوفرة</span>
+                    <h2 class="pg-section-title">اختر سيارتك المفضلة</h2>
+                    <div class="pg-section-line"></div>
+                </div>
+                <div class="shop-grid">
+                    <div class="shop-car">
+                        <div class="shop-car-img">
+                            <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=400&h=220&fit=crop" alt="BMW M4">
+                        </div>
+                        <div class="shop-car-body">
+                            <h3>BMW M4</h3>
+                            <div class="shop-car-specs">
+                                <span class="shop-spec">السرعة: 280 كم/س</span>
+                                <span class="shop-spec">السعة: 3.0 لتر</span>
+                                <span class="shop-spec">القوة: 450 حصان</span>
+                                <span class="shop-spec">اللون: أبيض</span>
+                            </div>
+                            <div class="shop-car-price">500,000 ريال</div>
+                            <button class="shop-car-btn add-to-cart" data-car-id="1" data-car-name="BMW M4" data-car-price="500000">🛒 أضف إلى السلة</button>
+                        </div>
+                    </div>
+                    <div class="shop-car">
+                        <div class="shop-car-img">
+                            <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400&h=220&fit=crop" alt="Mercedes AMG">
+                        </div>
+                        <div class="shop-car-body">
+                            <h3>Mercedes AMG</h3>
+                            <div class="shop-car-specs">
+                                <span class="shop-spec">السرعة: 320 كم/س</span>
+                                <span class="shop-spec">السعة: 4.0 لتر</span>
+                                <span class="shop-spec">القوة: 500 حصان</span>
+                                <span class="shop-spec">اللون: أسود</span>
+                            </div>
+                            <div class="shop-car-price">600,000 ريال</div>
+                            <button class="shop-car-btn add-to-cart" data-car-id="2" data-car-name="Mercedes AMG" data-car-price="600000">🛒 أضف إلى السلة</button>
+                        </div>
+                    </div>
+                    <div class="shop-car">
+                        <div class="shop-car-img">
+                            <img src="https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400&h=220&fit=crop" alt="Audi RS7">
+                        </div>
+                        <div class="shop-car-body">
+                            <h3>Audi RS7</h3>
+                            <div class="shop-car-specs">
+                                <span class="shop-spec">السرعة: 300 كم/س</span>
+                                <span class="shop-spec">السعة: 2.5 لتر</span>
+                                <span class="shop-spec">القوة: 400 حصان</span>
+                                <span class="shop-spec">اللون: أحمر</span>
+                            </div>
+                            <div class="shop-car-price">450,000 ريال</div>
+                            <button class="shop-car-btn add-to-cart" data-car-id="3" data-car-name="Audi RS7" data-car-price="450000">🛒 أضف إلى السلة</button>
+                        </div>
+                    </div>
+                    <div class="shop-car">
+                        <div class="shop-car-img">
+                            <img src="https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=400&h=220&fit=crop" alt="Ferrari 488">
+                        </div>
+                        <div class="shop-car-body">
+                            <h3>Ferrari 488</h3>
+                            <div class="shop-car-specs">
+                                <span class="shop-spec">السرعة: 350 كم/س</span>
+                                <span class="shop-spec">السعة: 3.9 لتر</span>
+                                <span class="shop-spec">القوة: 650 حصان</span>
+                                <span class="shop-spec">اللون: أحمر</span>
+                            </div>
+                            <div class="shop-car-price">1,000,000 ريال</div>
+                            <button class="shop-car-btn add-to-cart" data-car-id="4" data-car-name="Ferrari 488" data-car-price="1000000">🛒 أضف إلى السلة</button>
+                        </div>
+                    </div>
+                    <div class="shop-car">
+                        <div class="shop-car-img">
+                            <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&h=220&fit=crop" alt="Lamborghini Huracan">
+                        </div>
+                        <div class="shop-car-body">
+                            <h3>Lamborghini Huracan</h3>
+                            <div class="shop-car-specs">
+                                <span class="shop-spec">السرعة: 340 كم/س</span>
+                                <span class="shop-spec">السعة: 5.2 لتر</span>
+                                <span class="shop-spec">القوة: 610 حصان</span>
+                                <span class="shop-spec">اللون: أصفر</span>
+                            </div>
+                            <div class="shop-car-price">800,000 ريال</div>
+                            <button class="shop-car-btn add-to-cart" data-car-id="5" data-car-name="Lamborghini Huracan" data-car-price="800000">🛒 أضف إلى السلة</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pg-section pg-section-darker">
+            <div class="container">
+                <div class="pg-section-header">
+                    <span class="pg-section-tag">طرق الدفع</span>
+                    <h2 class="pg-section-title">نقبل جميع طرق الدفع</h2>
+                    <div class="pg-section-line"></div>
+                </div>
+                <div class="pg-payment-grid">
+                    <div class="pg-payment-item">
+                        <span>💳</span>
+                        <p>البطاقات البنكية</p>
+                    </div>
+                    <div class="pg-payment-item">
+                        <span>📱</span>
+                        <p>مدى وباي</p>
+                    </div>
+                    <div class="pg-payment-item">
+                        <span>🏦</span>
+                        <p>التحويل البنكي</p>
+                    </div>
+                    <div class="pg-payment-item">
+                        <span>💰</span>
+                        <p>تحويل الراجحي</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="pg-footer-grid">
+                <div class="pg-footer-brand">
+                    <div class="logo">
+                        <img src="assets/images/Main.png" alt="Road Town Logo" class="logo-img">
+                        <h3>Road Town RP</h3>
+                    </div>
+                    <p>أفضل سيرفر FiveM عربي - انضم لمجتمعنا الآن</p>
+                </div>
+                <div class="pg-footer-links">
+                    <h4>روابط سريعة</h4>
+                    <a href="index.html">الرئيسية</a>
+                    <a href="features.html">المميزات</a>
+                    <a href="shop.html">المتجر</a>
+                    <a href="contact.html">اتصل بنا</a>
+                </div>
+                <div class="pg-footer-links">
+                    <h4>تواصل معنا</h4>
+                    <a href="https://discord.gg/QkdTEyjY" target="_blank">Discord</a>
+                    <a href="#">YouTube</a>
+                    <a href="#">Twitter</a>
+                </div>
+                <div class="pg-footer-links">
+                    <h4>معلومات السيرفر</h4>
+                    <a href="#">connect.roadtown.sa</a>
+                    <a href="#">الحالة: متصل</a>
+                </div>
+            </div>
+            <div class="pg-footer-bottom">
+                <p>© 2026 Road Town RP - جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
