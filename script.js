@@ -16,7 +16,7 @@ function showNotification(message, type = 'info') {
     const colors = { success: '#22c55e', error: '#ef4444', info: '#e67e22' };
     const icons = { success: '✅', error: '❌', info: 'ℹ️' };
     notification.style.cssText = `
-        background: #1a1a2e; border: 2px solid ${colors[type] || colors.info};
+        background: #0a0a0a; border: 2px solid ${colors[type] || colors.info};
         color: #fff; padding: 2rem 2.5rem; border-radius: 16px;
         font-family: 'Tajawal', sans-serif; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         font-size: 1.1rem; font-weight: 700; text-align: center;
