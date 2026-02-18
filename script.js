@@ -4,26 +4,56 @@
 
 // Notification System
 function showNotification(message, type = 'info') {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity .4s ease;
+    `;
+
     const notification = document.createElement('div');
     const colors = { success: '#22c55e', error: '#ef4444', info: '#e67e22' };
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
     notification.style.cssText = `
-        position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px);
-        background: ${colors[type] || colors.info}; color: ${type === 'info' ? '#0a0a0a' : '#fff'};
-        padding: 14px 28px; border-radius: 12px; font-family: 'Tajawal', sans-serif;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 10000; font-size: 1rem;
-        font-weight: 700; opacity: 0; transition: all .4s cubic-bezier(.4,0,.2,1);
+        background: #1a1a2e; border: 2px solid ${colors[type] || colors.info};
+        color: #fff; padding: 2rem 2.5rem; border-radius: 16px;
+        font-family: 'Tajawal', sans-serif; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        font-size: 1.1rem; font-weight: 700; text-align: center;
+        max-width: 450px; width: 90%; transform: scale(0.8);
+        transition: transform .4s cubic-bezier(.4,0,.2,1);
     `;
-    notification.textContent = message;
-    document.body.appendChild(notification);
+    notification.innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:0.8rem;">${icons[type] || icons.info}</div>
+        <div style="line-height:1.8;">${message}</div>
+        <div style="margin-top:1rem;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;background:${colors[type] || colors.info};width:100%;animation:notifTimer 5s linear forwards;"></div>
+        </div>
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = '@keyframes notifTimer{from{width:100%}to{width:0%}}';
+    document.head.appendChild(style);
+
+    overlay.appendChild(notification);
+    document.body.appendChild(overlay);
+
     requestAnimationFrame(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(-50%) translateY(0)';
+        overlay.style.opacity = '1';
+        notification.style.transform = 'scale(1)';
     });
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(-50%) translateY(-20px)';
-        setTimeout(() => notification.remove(), 400);
-    }, 3000);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeNotif();
+    });
+
+    function closeNotif() {
+        overlay.style.opacity = '0';
+        notification.style.transform = 'scale(0.8)';
+        setTimeout(() => { overlay.remove(); style.remove(); }, 400);
+    }
+
+    setTimeout(closeNotif, 5000);
 }
 
 // Shopping Cart
