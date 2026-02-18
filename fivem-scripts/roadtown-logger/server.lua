@@ -93,16 +93,160 @@ if Config.LogQBAdmin then
 end
 
 -- ============================================
--- TXADMIN LOGGING (official events + NUI action interception)
+-- TXADMIN LOGGING
+-- Uses REAL txAdmin internal events from source code
 -- ============================================
 if Config.LogTxAdmin then
 
-    -- ===== OFFICIAL TXADMIN EVENTS =====
+    -- ===== MASTER HOOK: txsv:logger:menuEvent =====
+    -- ALL txAdmin in-game menu actions pass through this event
+    -- This captures: Noclip, God Mode, Spawn Vehicle, Freeze, Spectate,
+    -- Vehicle Repair/Boost/Delete, Drunk, Fire, Wild Attack, etc.
+    local menuActionLabels = {
+        ['playerModeChanged'] = 'Player Mode',  -- noclip/godmode/superjump/none
+        ['spawnVehicle'] = 'Spawn Vehicle',
+        ['vehicleRepair'] = 'Fix Vehicle',
+        ['vehicleBoost'] = 'Max Vehicle Mods',
+        ['deleteVehicle'] = 'Delete Vehicle',
+        ['freezePlayer'] = 'Freeze Player',
+        ['spectatePlayer'] = 'Spectate Player',
+        ['drunkEffect'] = 'Make Player Drunk',
+        ['setOnFire'] = 'Set On Fire',
+        ['wildAttack'] = 'Wild Attack',
+        ['healPlayer'] = 'Heal Player',
+        ['healAll'] = 'Heal All',
+        ['tpToPlayer'] = 'Teleport to Player',
+        ['tpToCoords'] = 'Teleport to Coords',
+        ['tpToWaypoint'] = 'Teleport to Marker',
+        ['tpBack'] = 'Teleport Back',
+        ['summonPlayer'] = 'Bring Player',
+        ['clearArea'] = 'Clear Area',
+        ['announceMessage'] = 'Announcement',
+    }
+
+    local modeLabels = {
+        ['noclip'] = 'Noclip',
+        ['godmode'] = 'God Mode',
+        ['superjump'] = 'Super Jump',
+        ['none'] = 'Normal Mode',
+    }
+
+    AddEventHandler('txsv:logger:menuEvent', function(src, action, allowed, ...)
+        local args = {...}
+        local label = menuActionLabels[action] or action
+        local targetName = "-"
+        local details = nil
+
+        -- Handle player mode changes (noclip/godmode)
+        if action == 'playerModeChanged' then
+            local mode = args[1] or "unknown"
+            label = modeLabels[mode] or mode
+            details = "الوضع: " .. mode
+        -- Handle spawn vehicle
+        elseif action == 'spawnVehicle' then
+            local model = args[1] or "unknown"
+            details = "الموديل: " .. tostring(model)
+        -- Handle actions with target player
+        elseif action == 'freezePlayer' or action == 'spectatePlayer' or action == 'drunkEffect'
+            or action == 'setOnFire' or action == 'wildAttack' or action == 'tpToPlayer'
+            or action == 'summonPlayer' or action == 'healPlayer' then
+            local targetId = args[1]
+            if targetId then
+                targetName = (GetPlayerName(tonumber(targetId)) or "Unknown") .. " (ID: " .. tostring(targetId) .. ")"
+            end
+        end
+
+        -- Only log allowed actions (or log denied too if you want)
+        if allowed then
+            SendLog("/api/fivem/tx-log", {
+                admin = GetAdminName(src),
+                action = label,
+                target = targetName,
+                reason = "-",
+                details = details
+            })
+        end
+    end)
+
+    -- ===== REAL txAdmin server events (txsv:req:*) =====
+    -- These are the actual RegisterNetEvent names from txAdmin source code
+
+    -- Player Mode (Noclip / God Mode / Super Jump)
+    AddEventHandler('txsv:req:changePlayerMode', function(mode, nearbyPlayers)
+        local src = source
+        local label = modeLabels[mode] or mode or "Unknown Mode"
+        SendLog("/api/fivem/tx-log", {
+            admin = GetAdminName(src),
+            action = label,
+            target = "-",
+            reason = "-",
+            details = "الوضع: " .. tostring(mode)
+        })
+    end)
+
+    -- Spawn Vehicle (FiveM)
+    AddEventHandler('txsv:req:vehicle:spawn:fivem', function(model, modelType)
+        local src = source
+        SendLog("/api/fivem/tx-log", {
+            admin = GetAdminName(src),
+            action = "Spawn Vehicle",
+            target = "-",
+            reason = "-",
+            details = "الموديل: " .. tostring(model) .. " | النوع: " .. tostring(modelType)
+        })
+    end)
+
+    -- Fix Vehicle
+    AddEventHandler('txsv:req:vehicle:fix', function()
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Fix Vehicle", target = "-", reason = "-", details = nil })
+    end)
+
+    -- Boost Vehicle (Max Mods)
+    AddEventHandler('txsv:req:vehicle:boost', function()
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Max Vehicle Mods", target = "-", reason = "-", details = nil })
+    end)
+
+    -- Delete Vehicle
+    AddEventHandler('txsv:req:vehicle:delete', function(vehNetId)
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Delete Vehicle", target = "-", reason = "-", details = "NetID: " .. tostring(vehNetId) })
+    end)
+
+    -- Freeze Player
+    AddEventHandler('txsv:req:freezePlayer', function(targetId)
+        local targetName = targetId and ((GetPlayerName(tonumber(targetId)) or "Unknown") .. " (ID: " .. tostring(targetId) .. ")") or "-"
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Freeze Player", target = targetName, reason = "-", details = nil })
+    end)
+
+    -- Spectate Player
+    AddEventHandler('txsv:req:spectate:start', function(targetId)
+        local targetName = targetId and ((GetPlayerName(tonumber(targetId)) or "Unknown") .. " (ID: " .. tostring(targetId) .. ")") or "-"
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Spectate Player", target = targetName, reason = "-", details = nil })
+    end)
+
+    -- Troll: Make Drunk
+    AddEventHandler('txsv:req:troll:setDrunk', function(id)
+        local targetName = id and ((GetPlayerName(tonumber(id)) or "Unknown") .. " (ID: " .. tostring(id) .. ")") or "-"
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Make Player Drunk", target = targetName, reason = "-", details = nil })
+    end)
+
+    -- Troll: Set On Fire
+    AddEventHandler('txsv:req:troll:setOnFire', function(id)
+        local targetName = id and ((GetPlayerName(tonumber(id)) or "Unknown") .. " (ID: " .. tostring(id) .. ")") or "-"
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Set On Fire", target = targetName, reason = "-", details = nil })
+    end)
+
+    -- Troll: Wild Attack
+    AddEventHandler('txsv:req:troll:wildAttack', function(id)
+        local targetName = id and ((GetPlayerName(tonumber(id)) or "Unknown") .. " (ID: " .. tostring(id) .. ")") or "-"
+        SendLog("/api/fivem/tx-log", { admin = GetAdminName(source), action = "Wild Attack", target = targetName, reason = "-", details = nil })
+    end)
+
+    -- ===== OFFICIAL TXADMIN BROADCAST EVENTS =====
 
     AddEventHandler('txAdmin:events:playerKicked', function(eventData)
         local targetName = "-"
         if eventData.target and eventData.target ~= -1 then
-            targetName = (GetPlayerName(eventData.target) or "Unknown").." (ID: "..eventData.target..")"
+            targetName = (GetPlayerName(eventData.target) or "Unknown") .. " (ID: " .. eventData.target .. ")"
         elseif eventData.target == -1 then
             targetName = "الكل"
         end
@@ -111,24 +255,24 @@ if Config.LogTxAdmin then
 
     AddEventHandler('txAdmin:events:playerBanned', function(eventData)
         local targetName = eventData.targetName or "Unknown"
-        if eventData.targetNetId then targetName = targetName.." (ID: "..eventData.targetNetId..")" end
+        if eventData.targetNetId then targetName = targetName .. " (ID: " .. eventData.targetNetId .. ")" end
         local duration = eventData.durationTranslated or (eventData.expiration == false and "دائم" or "")
-        SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Ban Player", target = targetName, reason = eventData.reason or "بدون سبب", details = duration ~= "" and ("المدة: "..duration) or nil })
+        SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Ban Player", target = targetName, reason = eventData.reason or "بدون سبب", details = duration ~= "" and ("المدة: " .. duration) or nil })
     end)
 
     AddEventHandler('txAdmin:events:playerWarned', function(eventData)
         local targetName = eventData.targetName or "Unknown"
-        if eventData.targetNetId then targetName = targetName.." (ID: "..eventData.targetNetId..")" end
+        if eventData.targetNetId then targetName = targetName .. " (ID: " .. eventData.targetNetId .. ")" end
         SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Warn Player", target = targetName, reason = eventData.reason or "بدون سبب", details = nil })
     end)
 
     AddEventHandler('txAdmin:events:playerHealed', function(eventData)
-        local targetName = eventData.target == -1 and "الكل (السيرفر كامل)" or (eventData.target and ((GetPlayerName(eventData.target) or "Unknown").." (ID: "..eventData.target..")") or "-")
-        SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Revive Player", target = targetName, reason = "-", details = nil })
+        local targetName = eventData.target == -1 and "الكل (السيرفر كامل)" or (eventData.target and ((GetPlayerName(eventData.target) or "Unknown") .. " (ID: " .. eventData.target .. ")") or "-")
+        SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Heal/Revive", target = targetName, reason = "-", details = nil })
     end)
 
     AddEventHandler('txAdmin:events:playerDirectMessage', function(eventData)
-        local targetName = eventData.target and ((GetPlayerName(eventData.target) or "Unknown").." (ID: "..eventData.target..")") or "-"
+        local targetName = eventData.target and ((GetPlayerName(eventData.target) or "Unknown") .. " (ID: " .. eventData.target .. ")") or "-"
         SendLog("/api/fivem/tx-log", { admin = eventData.author or "txAdmin", action = "Direct Message", target = targetName, reason = "-", details = eventData.message or nil })
     end)
 
@@ -137,7 +281,7 @@ if Config.LogTxAdmin then
     end)
 
     AddEventHandler('txAdmin:events:scheduledRestart', function(eventData)
-        SendLog("/api/fivem/tx-log", { admin = "txAdmin (Auto)", action = "Scheduled Restart", target = "-", reason = "إعادة تشغيل مجدولة", details = eventData.secondsRemaining and ("متبقي: "..eventData.secondsRemaining.." ثانية") or nil })
+        SendLog("/api/fivem/tx-log", { admin = "txAdmin (Auto)", action = "Scheduled Restart", target = "-", reason = "إعادة تشغيل مجدولة", details = eventData.secondsRemaining and ("متبقي: " .. eventData.secondsRemaining .. " ثانية") or nil })
     end)
 
     AddEventHandler('txAdmin:events:announcement', function(eventData)
@@ -149,206 +293,10 @@ if Config.LogTxAdmin then
     end)
 
     AddEventHandler('txAdmin:events:actionRevoked', function(eventData)
-        SendLog("/api/fivem/tx-log", { admin = eventData.revokedBy or "txAdmin", action = "Revoke "..(eventData.actionType or "Action"), target = eventData.playerName or "-", reason = eventData.actionReason or "-", details = "بواسطة: "..(eventData.actionAuthor or "Unknown") })
+        SendLog("/api/fivem/tx-log", { admin = eventData.revokedBy or "txAdmin", action = "Revoke " .. (eventData.actionType or "Action"), target = eventData.playerName or "-", reason = eventData.actionReason or "-", details = "بواسطة: " .. (eventData.actionAuthor or "Unknown") })
     end)
 
-    -- ===== TXADMIN IN-GAME MENU ACTIONS (intercepting internal events) =====
-    -- txAdmin menu actions trigger these internal events
-
-    -- Freeze Player
-    AddEventHandler('txcl:event:freezePlayer', function(targetNetId)
-        local src = source
-        local targetName = targetNetId and ((GetPlayerName(targetNetId) or "Unknown").." (ID: "..targetNetId..")") or "-"
-        SendLog("/api/fivem/tx-log", { admin = GetAdminName(src), action = "Freeze Player", target = targetName, reason = "-", details = nil })
-    end)
-
-    -- Spectate Player
-    AddEventHandler('txcl:event:spectatePlayer', function(targetNetId)
-        local src = source
-        local targetName = targetNetId and ((GetPlayerName(targetNetId) or "Unknown").." (ID: "..targetNetId..")") or "-"
-        SendLog("/api/fivem/tx-log", { admin = GetAdminName(src), action = "Spectate Player", target = targetName, reason = "-", details = nil })
-    end)
-
-    -- Teleport to Player
-    AddEventHandler('txcl:event:teleportToPlayer', function(targetNetId)
-        local src = source
-        local targetName = targetNetId and ((GetPlayerName(targetNetId) or "Unknown").." (ID: "..targetNetId..")") or "-"
-        SendLog("/api/fivem/tx-log", { admin = GetAdminName(src), action = "Teleport to Player", target = targetName, reason = "-", details = nil })
-    end)
-
-    -- ===== INTERCEPT ALL TXADMIN MENU ACTIONS VIA txsv:req:playerActions =====
-    -- This is the main server event txAdmin uses for ALL in-game menu actions
-    AddEventHandler('__cfx_internal:serverPrint', function(msg)
-        -- txAdmin prints action logs to console, we intercept them
-    end)
-
-    -- Monitor resource for txAdmin action commands
-    -- txAdmin executes commands internally, we hook the common ones
-    local txCommands = {
-        ['tx-noclip'] = 'Noclip',
-        ['tx-godmode'] = 'God Mode',
-        ['tx-invisible'] = 'Invisible',
-        ['tx-heal'] = 'Heal',
-        ['tx-car'] = 'Spawn Vehicle',
-        ['tx-spawnvehicle'] = 'Spawn Vehicle',
-        ['tx-fix'] = 'Fix Vehicle',
-        ['tx-maxmods'] = 'Max Vehicle Mods',
-        ['tx-refuel'] = 'Refuel Vehicle',
-    }
-
-    for cmd, label in pairs(txCommands) do
-        RegisterCommand(cmd, function(src, args)
-            if src > 0 then
-                local target = args[1] and ((GetPlayerName(tonumber(args[1])) or "Unknown").." (ID: "..args[1]..")") or "-"
-                local detail = table.concat(args, " ")
-                SendLog("/api/fivem/tx-log", { admin = GetAdminName(src), action = label, target = target, reason = "-", details = detail ~= "" and detail or nil })
-            end
-        end, true)
-    end
-
-    -- ===== INTERCEPT ALL TXADMIN NUI CALLBACKS =====
-    -- txAdmin v7+ uses txsv:req:vehicle:spawn, txsv:req:player:heal etc.
-    -- We hook the most common ones
-
-    local txActions = {
-        'txsv:req:vehicle:spawn',
-        'txsv:req:vehicle:fix',
-        'txsv:req:vehicle:boost',
-        'txsv:req:vehicle:delete',
-        'txsv:req:player:heal',
-        'txsv:req:player:freeze',
-        'txsv:req:player:spectate',
-        'txsv:req:player:kick',
-        'txsv:req:player:warn',
-        'txsv:req:player:ban',
-        'txsv:req:player:dm',
-        'txsv:req:player:tpto',
-        'txsv:req:player:bring',
-        'txsv:req:player:giveItem',
-        'txsv:req:player:giveMoney',
-        'txsv:req:player:giveMoneyAll',
-        'txsv:req:player:giveItemAll',
-        'txsv:req:player:removeMoney',
-        'txsv:req:player:setJob',
-        'txsv:req:player:setGang',
-        'txsv:req:player:setPerms',
-        'txsv:req:player:setPed',
-        'txsv:req:player:setAmmo',
-        'txsv:req:player:toggleCuffs',
-        'txsv:req:player:toggleDuty',
-        'txsv:req:player:makeDrunk',
-        'txsv:req:player:mutePlayer',
-        'txsv:req:player:playSound',
-        'txsv:req:player:removeStress',
-        'txsv:req:player:openInventory',
-        'txsv:req:player:openStash',
-        'txsv:req:player:openTrunk',
-        'txsv:req:player:reviveAll',
-        'txsv:req:player:reviveRadius',
-        'txsv:req:player:infiniteAmmo',
-        'txsv:req:player:godMode',
-        'txsv:req:player:invisible',
-        'txsv:req:player:noclip',
-        'txsv:req:player:toggleBlips',
-        'txsv:req:player:toggleNames',
-        'txsv:req:player:toggleCoords',
-        'txsv:req:player:toggleBlackout',
-        'txsv:req:player:toggleLaser',
-        'txsv:req:player:vehicleDevMenu',
-        'txsv:req:player:getRoutingBucket',
-        'txsv:req:player:setRoutingBucket',
-        'txsv:req:player:setVehicleGarageState',
-        'txsv:req:player:teleportToCoords',
-        'txsv:req:player:teleportToMarker',
-        'txsv:req:player:teleportToLocation',
-        'txsv:req:player:teleportBack',
-    }
-
-    local actionLabels = {
-        ['vehicle:spawn'] = 'Spawn Vehicle',
-        ['vehicle:fix'] = 'Fix Vehicle',
-        ['vehicle:boost'] = 'Max Vehicle Mods',
-        ['vehicle:delete'] = 'Delete Vehicle',
-        ['player:heal'] = 'Heal Player',
-        ['player:freeze'] = 'Freeze Player',
-        ['player:spectate'] = 'Spectate Player',
-        ['player:kick'] = 'Kick Player',
-        ['player:warn'] = 'Warn Player',
-        ['player:ban'] = 'Ban Player',
-        ['player:dm'] = 'Direct Message',
-        ['player:tpto'] = 'Teleport to Player',
-        ['player:bring'] = 'Bring Player',
-        ['player:giveItem'] = 'Give Item',
-        ['player:giveMoney'] = 'Give Money',
-        ['player:giveMoneyAll'] = 'Give Money to All',
-        ['player:giveItemAll'] = 'Give Item to All',
-        ['player:removeMoney'] = 'Remove Money',
-        ['player:setJob'] = 'Set Job',
-        ['player:setGang'] = 'Set Gang',
-        ['player:setPerms'] = 'Set Perms',
-        ['player:setPed'] = 'Set Ped',
-        ['player:setAmmo'] = 'Set Ammo',
-        ['player:toggleCuffs'] = 'Toggle Cuffs',
-        ['player:toggleDuty'] = 'Toggle Duty',
-        ['player:makeDrunk'] = 'Make Player Drunk',
-        ['player:mutePlayer'] = 'Mute Player',
-        ['player:playSound'] = 'Play Sound',
-        ['player:removeStress'] = 'Remove Stress',
-        ['player:openInventory'] = 'Open Inventory',
-        ['player:openStash'] = 'Open Stash',
-        ['player:openTrunk'] = 'Open Trunk',
-        ['player:reviveAll'] = 'Revive All',
-        ['player:reviveRadius'] = 'Revive Radius',
-        ['player:infiniteAmmo'] = 'Infinite Ammo',
-        ['player:godMode'] = 'God Mode',
-        ['player:invisible'] = 'Invisible',
-        ['player:noclip'] = 'Noclip',
-        ['player:toggleBlips'] = 'Toggle Blips',
-        ['player:toggleNames'] = 'Toggle Names',
-        ['player:toggleCoords'] = 'Toggle Coords',
-        ['player:toggleBlackout'] = 'Toggle Blackout',
-        ['player:toggleLaser'] = 'Toggle Laser',
-        ['player:vehicleDevMenu'] = 'Vehicle Dev Menu',
-        ['player:getRoutingBucket'] = 'Get Routing Bucket',
-        ['player:setRoutingBucket'] = 'Set Routing Bucket',
-        ['player:setVehicleGarageState'] = 'Set Vehicle Garage State',
-        ['player:teleportToCoords'] = 'Teleport to Coords',
-        ['player:teleportToMarker'] = 'Teleport to Marker',
-        ['player:teleportToLocation'] = 'Teleport to Location',
-        ['player:teleportBack'] = 'Teleport Back',
-    }
-
-    for _, eventName in ipairs(txActions) do
-        AddEventHandler(eventName, function(data)
-            local src = source
-            local shortName = eventName:gsub('txsv:req:', '')
-            local label = actionLabels[shortName] or shortName
-            local targetName = "-"
-            if data then
-                if data.id then
-                    targetName = (GetPlayerName(tonumber(data.id)) or "Unknown").." (ID: "..tostring(data.id)..")"
-                elseif data.targetId then
-                    targetName = (GetPlayerName(tonumber(data.targetId)) or "Unknown").." (ID: "..tostring(data.targetId)..")"
-                elseif data.netId then
-                    targetName = (GetPlayerName(tonumber(data.netId)) or "Unknown").." (ID: "..tostring(data.netId)..")"
-                end
-            end
-            local details = nil
-            if data then
-                if data.model then details = "Model: "..tostring(data.model) end
-                if data.amount then details = (details and details.." | " or "").."Amount: "..tostring(data.amount) end
-                if data.item then details = (details and details.." | " or "").."Item: "..tostring(data.item) end
-                if data.job then details = (details and details.." | " or "").."Job: "..tostring(data.job) end
-                if data.gang then details = (details and details.." | " or "").."Gang: "..tostring(data.gang) end
-                if data.reason then details = (details and details.." | " or "").."Reason: "..tostring(data.reason) end
-                if data.coords then details = (details and details.." | " or "").."Coords: "..tostring(data.coords) end
-                if data.location then details = (details and details.." | " or "").."Location: "..tostring(data.location) end
-            end
-            SendLog("/api/fivem/tx-log", { admin = GetAdminName(src), action = label, target = targetName, reason = (data and data.reason) or "-", details = details })
-        end)
-    end
-
-    print("^2[RoadTown Logger] txAdmin logging enabled (events + menu actions)^0")
+    print("^2[RoadTown Logger] txAdmin logging enabled (menu + broadcast events)^0")
 end
 
 print("^5[RoadTown Logger] Resource started - Website: " .. Config.WebsiteURL .. "^0")
