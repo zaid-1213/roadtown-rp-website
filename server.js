@@ -33,13 +33,16 @@ function writeDB(data) {
 
 function saveUser(user) {
     const db = readDB();
-    const idx = db.users.findIndex(u => u.id === user.id && u.provider === user.provider);
+    const idx = db.users.findIndex(u => u.discordId === user.discordId);
     const now = new Date().toISOString();
     if (idx >= 0) {
         db.users[idx].username = user.username;
         db.users[idx].avatar = user.avatar;
         db.users[idx].lastLogin = now;
         db.users[idx].loginCount = (db.users[idx].loginCount || 0) + 1;
+        if (user.steamId) db.users[idx].steamId = user.steamId;
+        if (user.steamUsername) db.users[idx].steamUsername = user.steamUsername;
+        if (user.steamAvatar) db.users[idx].steamAvatar = user.steamAvatar;
     } else {
         db.users.push({
             ...user,
@@ -49,6 +52,7 @@ function saveUser(user) {
         });
     }
     writeDB(db);
+    return db.users[idx >= 0 ? idx : db.users.length - 1];
 }
 
 function isAdmin(userId) {
@@ -83,6 +87,11 @@ app.use(passport.session());
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((obj, done) => done(null, obj));
 
+// Helper: check if user has both accounts linked
+function isFullyLinked(user) {
+    return !!(user && user.discordId && user.steamId);
+}
+
 // Base URL for callbacks (auto-detect or use env)
 const BASE_URL = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
@@ -92,18 +101,22 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_ID !== 'YOUR_DIS
         clientID: process.env.DISCORD_CLIENT_ID,
         clientSecret: process.env.DISCORD_CLIENT_SECRET,
         callbackURL: process.env.DISCORD_CALLBACK_URL || `${BASE_URL}/auth/discord/callback`,
-        scope: ['identify', 'email']
-    }, (accessToken, refreshToken, profile, done) => {
+        scope: ['identify', 'email'],
+        passReqToCallback: true
+    }, (req, accessToken, refreshToken, profile, done) => {
+        const sessionUser = req.user || {};
         const user = {
-            id: profile.id,
+            discordId: profile.id,
             username: profile.username,
             avatar: profile.avatar ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png` : null,
             email: profile.email || null,
-            provider: 'discord'
+            steamId: sessionUser.steamId || null,
+            steamUsername: sessionUser.steamUsername || null,
+            steamAvatar: sessionUser.steamAvatar || null
         };
-        saveUser(user);
-        user.isAdmin = isAdmin(profile.id);
-        return done(null, user);
+        const saved = saveUser(user);
+        saved.isAdmin = isAdmin(saved.discordId);
+        return done(null, saved);
     }));
 }
 
@@ -112,17 +125,19 @@ if (process.env.STEAM_API_KEY && process.env.STEAM_API_KEY !== 'YOUR_STEAM_API_K
     passport.use(new SteamStrategy({
         returnURL: process.env.STEAM_CALLBACK_URL || `${BASE_URL}/auth/steam/callback`,
         realm: BASE_URL + '/',
-        apiKey: process.env.STEAM_API_KEY
-    }, (identifier, profile, done) => {
-        const user = {
-            id: profile.id,
-            username: profile.displayName,
-            avatar: profile.photos[2] ? profile.photos[2].value : null,
-            provider: 'steam'
-        };
-        saveUser(user);
-        user.isAdmin = isAdmin(profile.id);
-        return done(null, user);
+        apiKey: process.env.STEAM_API_KEY,
+        passReqToCallback: true
+    }, (req, identifier, profile, done) => {
+        const sessionUser = req.user || {};
+        if (!sessionUser.discordId) {
+            return done(null, false, { message: 'يجب تسجيل الدخول عبر Discord أولاً' });
+        }
+        sessionUser.steamId = profile.id;
+        sessionUser.steamUsername = profile.displayName;
+        sessionUser.steamAvatar = profile.photos[2] ? profile.photos[2].value : null;
+        const saved = saveUser(sessionUser);
+        saved.isAdmin = isAdmin(saved.discordId);
+        return done(null, saved);
     }));
 }
 
@@ -131,19 +146,42 @@ if (process.env.STEAM_API_KEY && process.env.STEAM_API_KEY !== 'YOUR_STEAM_API_K
 // ============================================
 app.get('/auth/status', (req, res) => {
     if (req.isAuthenticated()) {
-        res.json({ loggedIn: true, user: { ...req.user, isAdmin: isAdmin(req.user.id) } });
+        const user = req.user;
+        const linked = isFullyLinked(user);
+        res.json({
+            loggedIn: true,
+            fullyLinked: linked,
+            user: {
+                discordId: user.discordId,
+                username: user.username,
+                avatar: user.avatar,
+                steamId: user.steamId || null,
+                steamUsername: user.steamUsername || null,
+                isAdmin: isAdmin(user.discordId)
+            }
+        });
     } else {
-        res.json({ loggedIn: false });
+        res.json({ loggedIn: false, fullyLinked: false });
     }
 });
 
 app.get('/auth/discord', passport.authenticate('discord'));
 app.get('/auth/discord/callback',
     passport.authenticate('discord', { failureRedirect: '/login.html?error=discord' }),
-    (req, res) => res.redirect('/login.html?success=true')
+    (req, res) => {
+        if (!req.user.steamId) {
+            return res.redirect('/login.html?needsteam=true');
+        }
+        res.redirect('/login.html?success=true');
+    }
 );
 
-app.get('/auth/steam', passport.authenticate('steam'));
+app.get('/auth/steam', (req, res, next) => {
+    if (!req.isAuthenticated() || !req.user.discordId) {
+        return res.redirect('/login.html?error=needsdiscord');
+    }
+    passport.authenticate('steam')(req, res, next);
+});
 app.get('/auth/steam/callback',
     passport.authenticate('steam', { failureRedirect: '/login.html?error=steam' }),
     (req, res) => res.redirect('/login.html?success=true')
@@ -157,12 +195,13 @@ app.get('/auth/logout', (req, res) => {
 // MIDDLEWARE
 // ============================================
 function requireAuth(req, res, next) {
-    if (req.isAuthenticated()) return next();
+    if (req.isAuthenticated() && isFullyLinked(req.user)) return next();
+    if (req.isAuthenticated()) return res.redirect('/login.html?needsteam=true');
     res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
 }
 
 function requireAdmin(req, res, next) {
-    if (req.isAuthenticated() && isAdmin(req.user.id)) return next();
+    if (req.isAuthenticated() && isFullyLinked(req.user) && isAdmin(req.user.discordId)) return next();
     if (req.isAuthenticated()) return res.status(403).json({ error: 'ليس لديك صلاحية الوصول' });
     res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
 }
@@ -170,7 +209,7 @@ function requireAdmin(req, res, next) {
 const OWNER_ID = '1047671196214362265';
 
 function requireOwner(req, res, next) {
-    if (req.isAuthenticated() && String(req.user.id) === OWNER_ID) return next();
+    if (req.isAuthenticated() && isFullyLinked(req.user) && String(req.user.discordId) === OWNER_ID) return next();
     if (req.isAuthenticated()) return res.status(403).json({ error: 'فقط المالك يمكنه تنفيذ هذا الإجراء' });
     res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
 }
