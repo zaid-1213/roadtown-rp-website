@@ -231,6 +231,66 @@ app.get('/admin.html', requireAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
+// ============================================
+// FIVEM SERVER API
+// ============================================
+const FIVEM_IP = '31.56.120.150';
+const FIVEM_PORT = 30120;
+
+app.get('/api/fivem/status', async (req, res) => {
+    try {
+        const http = require('http');
+        
+        const fetchJSON = (path) => new Promise((resolve, reject) => {
+            const request = http.get(`http://${FIVEM_IP}:${FIVEM_PORT}${path}`, { timeout: 5000 }, (response) => {
+                let data = '';
+                response.on('data', chunk => data += chunk);
+                response.on('end', () => {
+                    try { resolve(JSON.parse(data)); }
+                    catch (e) { reject(e); }
+                });
+            });
+            request.on('error', reject);
+            request.on('timeout', () => { request.destroy(); reject(new Error('timeout')); });
+        });
+
+        const [info, players] = await Promise.all([
+            fetchJSON('/info.json').catch(() => null),
+            fetchJSON('/players.json').catch(() => [])
+        ]);
+
+        if (!info) {
+            return res.json({
+                online: false,
+                players: 0,
+                maxPlayers: 0,
+                hostname: 'Road Town RP',
+                playerList: []
+            });
+        }
+
+        res.json({
+            online: true,
+            players: players.length,
+            maxPlayers: info.vars ? parseInt(info.vars.sv_maxClients) || 128 : 128,
+            hostname: info.vars ? info.vars.sv_projectName || info.vars.sv_hostname || 'Road Town RP' : 'Road Town RP',
+            playerList: players.map(p => ({
+                id: p.id,
+                name: p.name,
+                ping: p.ping
+            }))
+        });
+    } catch (err) {
+        res.json({
+            online: false,
+            players: 0,
+            maxPlayers: 0,
+            hostname: 'Road Town RP',
+            playerList: []
+        });
+    }
+});
+
 // Serve static files
 app.use(express.static(__dirname));
 
