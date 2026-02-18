@@ -18,6 +18,7 @@ const DB_PATH = path.join(DATA_DIR, 'users.json');
 const MESSAGES_PATH = path.join(DATA_DIR, 'messages.json');
 const ORDERS_PATH = path.join(DATA_DIR, 'orders.json');
 const ADMINLOGS_PATH = path.join(DATA_DIR, 'adminlogs.json');
+const TXLOGS_PATH = path.join(DATA_DIR, 'txlogs.json');
 
 function ensureDB() {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -25,6 +26,7 @@ function ensureDB() {
     if (!fs.existsSync(MESSAGES_PATH)) fs.writeFileSync(MESSAGES_PATH, JSON.stringify({ messages: [] }, null, 2));
     if (!fs.existsSync(ORDERS_PATH)) fs.writeFileSync(ORDERS_PATH, JSON.stringify({ orders: [] }, null, 2));
     if (!fs.existsSync(ADMINLOGS_PATH)) fs.writeFileSync(ADMINLOGS_PATH, JSON.stringify({ logs: [] }, null, 2));
+    if (!fs.existsSync(TXLOGS_PATH)) fs.writeFileSync(TXLOGS_PATH, JSON.stringify({ logs: [] }, null, 2));
 }
 
 function readDB() {
@@ -65,6 +67,16 @@ function readAdminLogs() {
 function writeAdminLogs(data) {
     ensureDB();
     fs.writeFileSync(ADMINLOGS_PATH, JSON.stringify(data, null, 2));
+}
+
+function readTxLogs() {
+    ensureDB();
+    return JSON.parse(fs.readFileSync(TXLOGS_PATH, 'utf8'));
+}
+
+function writeTxLogs(data) {
+    ensureDB();
+    fs.writeFileSync(TXLOGS_PATH, JSON.stringify(data, null, 2));
 }
 
 function saveUser(user) {
@@ -415,6 +427,38 @@ app.get('/api/admin/logs', requireAdmin, (req, res) => {
 app.post('/api/admin/logs/clear', requireOwner, (req, res) => {
     writeAdminLogs({ logs: [] });
     res.json({ success: true, message: 'تم مسح سجل الأدمن' });
+});
+
+// ============================================
+// TXADMIN LOGS API
+// ============================================
+app.post('/api/fivem/tx-log', (req, res) => {
+    const { secret, admin, action, target, reason, details } = req.body;
+    if (secret !== ADMIN_LOG_SECRET) return res.status(403).json({ error: 'Unauthorized' });
+    if (!admin || !action) return res.status(400).json({ error: 'admin and action required' });
+    const data = readTxLogs();
+    data.logs.unshift({
+        id: Date.now().toString(),
+        admin,
+        action,
+        target: target || null,
+        reason: reason || null,
+        details: details || null,
+        timestamp: new Date().toISOString()
+    });
+    if (data.logs.length > 5000) data.logs = data.logs.slice(0, 5000);
+    writeTxLogs(data);
+    res.json({ success: true });
+});
+
+app.get('/api/admin/txlogs', requireAdmin, (req, res) => {
+    const data = readTxLogs();
+    res.json(data);
+});
+
+app.post('/api/admin/txlogs/clear', requireOwner, (req, res) => {
+    writeTxLogs({ logs: [] });
+    res.json({ success: true, message: 'تم مسح سجل txAdmin' });
 });
 
 // ============================================

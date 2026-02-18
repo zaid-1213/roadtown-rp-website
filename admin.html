@@ -107,6 +107,7 @@
                     <button class="admin-tab" onclick="switchTab('orders')">🛒 المشتريات <span class="tab-badge" id="ordersBadge" style="display:none">0</span></button>
                     <button class="admin-tab" onclick="switchTab('messages')">📨 الرسائل <span class="tab-badge" id="messagesBadge" style="display:none">0</span></button>
                     <button class="admin-tab" onclick="switchTab('adminlogs')">🛡️ سجل الأدمن <span class="tab-badge" id="logsBadge" style="display:none">0</span></button>
+                    <button class="admin-tab" onclick="switchTab('txlogs')">💻 txAdmin <span class="tab-badge" id="txBadge" style="display:none">0</span></button>
                 </div>
 
                 <!-- TAB: USERS -->
@@ -276,6 +277,48 @@
                     </div>
                 </div>
 
+                <!-- TAB: TXADMIN LOGS -->
+                <div class="admin-tab-content" id="tab-txlogs">
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalTxLogs">-</span>
+                            <span class="admin-stat-label">إجمالي السجلات</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="todayTxLogs">-</span>
+                            <span class="admin-stat-label">اليوم</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="uniqueTxAdmins">-</span>
+                            <span class="admin-stat-label">أدمن نشط</span>
+                        </div>
+                    </div>
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>💻 سجل استخدام txAdmin</h3>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input type="text" class="admin-search" id="searchTxLogs" placeholder="🔍 بحث في السجل...">
+                                <button class="admin-action-btn admin-btn-delete" onclick="clearTxLogs()" style="white-space:nowrap;">🗑️ مسح الكل</button>
+                            </div>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>الأدمن</th>
+                                    <th>الإجراء</th>
+                                    <th>الهدف</th>
+                                    <th>السبب</th>
+                                    <th>التفاصيل</th>
+                                    <th>التاريخ والوقت</th>
+                                </tr>
+                            </thead>
+                            <tbody id="txLogsTableBody">
+                                <tr><td colspan="6" class="admin-empty">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>
@@ -291,7 +334,7 @@
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script>
-        let allUsers = [], allOrders = [], allMessages = [], allLogs = [];
+        let allUsers = [], allOrders = [], allMessages = [], allLogs = [], allTxLogs = [];
 
         // ========== TAB SWITCHING ==========
         function switchTab(tab) {
@@ -505,9 +548,47 @@
             loadLogs();
         }
 
+        // ========== TXADMIN LOGS ==========
+        async function loadTxLogs() {
+            try {
+                const res = await fetch('/api/admin/txlogs');
+                const data = await res.json();
+                allTxLogs = data.logs || [];
+                document.getElementById('totalTxLogs').textContent = allTxLogs.length;
+                const today = new Date().toISOString().slice(0, 10);
+                const todayCount = allTxLogs.filter(l => l.timestamp && l.timestamp.slice(0, 10) === today).length;
+                document.getElementById('todayTxLogs').textContent = todayCount;
+                document.getElementById('uniqueTxAdmins').textContent = [...new Set(allTxLogs.map(l => l.admin))].length;
+                const badge = document.getElementById('txBadge');
+                if (todayCount > 0) { badge.textContent = todayCount; badge.style.display = ''; } else { badge.style.display = 'none'; }
+                renderTxLogs(allTxLogs);
+            } catch(e) { document.getElementById('txLogsTableBody').innerHTML = '<tr><td colspan="6" class="admin-empty">❌ خطأ</td></tr>'; }
+        }
+
+        function renderTxLogs(logs) {
+            const tbody = document.getElementById('txLogsTableBody');
+            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
+            tbody.innerHTML = logs.map(l => `<tr>
+                <td><span class="admin-user-name" style="color:#66c0f4;">${l.admin}</span></td>
+                <td><span class="admin-badge admin-badge-cancelled">${l.action}</span></td>
+                <td><span class="admin-user-name">${l.target || '-'}</span></td>
+                <td><span class="msg-preview">${l.reason || '-'}</span></td>
+                <td><span class="msg-preview">${l.details || '-'}</span></td>
+                <td><span class="admin-date">${formatDate(l.timestamp)}</span></td>
+            </tr>`).join('');
+        }
+
+        async function clearTxLogs() {
+            if (!confirm('مسح كل سجلات txAdmin؟')) return;
+            const res = await fetch('/api/admin/txlogs/clear', { method:'POST', headers:{'Content-Type':'application/json'} });
+            const d = await res.json();
+            showNotification(d.message||d.error, res.ok?'success':'error');
+            loadTxLogs();
+        }
+
         // ========== SEARCH ==========
         document.addEventListener('DOMContentLoaded', () => {
-            loadUsers(); loadOrders(); loadMessages(); loadLogs();
+            loadUsers(); loadOrders(); loadMessages(); loadLogs(); loadTxLogs();
 
             document.getElementById('searchUsers').addEventListener('input', function() {
                 const q = this.value.toLowerCase();
@@ -524,6 +605,10 @@
             document.getElementById('searchLogs').addEventListener('input', function() {
                 const q = this.value.toLowerCase();
                 renderLogs(allLogs.filter(l => l.admin.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || (l.target||'').toLowerCase().includes(q) || (l.details||'').toLowerCase().includes(q)));
+            });
+            document.getElementById('searchTxLogs').addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                renderTxLogs(allTxLogs.filter(l => l.admin.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || (l.target||'').toLowerCase().includes(q) || (l.reason||'').toLowerCase().includes(q) || (l.details||'').toLowerCase().includes(q)));
             });
         });
     </script>
