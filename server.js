@@ -167,6 +167,14 @@ function requireAdmin(req, res, next) {
     res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
 }
 
+const OWNER_ID = '1047671196214362265';
+
+function requireOwner(req, res, next) {
+    if (req.isAuthenticated() && String(req.user.id) === OWNER_ID) return next();
+    if (req.isAuthenticated()) return res.status(403).json({ error: 'فقط المالك يمكنه تنفيذ هذا الإجراء' });
+    res.redirect('/login.html?redirect=' + encodeURIComponent(req.originalUrl));
+}
+
 // ============================================
 // ADMIN API
 // ============================================
@@ -179,7 +187,7 @@ app.get('/api/admin/users', requireAdmin, (req, res) => {
     res.json({ users, totalUsers: users.length });
 });
 
-app.post('/api/admin/add-admin', requireAdmin, (req, res) => {
+app.post('/api/admin/add-admin', requireOwner, (req, res) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId مطلوب' });
     const db = readDB();
@@ -190,7 +198,7 @@ app.post('/api/admin/add-admin', requireAdmin, (req, res) => {
     res.json({ success: true, message: 'تمت إضافة الأدمن بنجاح' });
 });
 
-app.post('/api/admin/remove-admin', requireAdmin, (req, res) => {
+app.post('/api/admin/remove-admin', requireOwner, (req, res) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId مطلوب' });
     if (userId === '1047671196214362265') return res.status(400).json({ error: 'لا يمكن إزالة المالك' });
