@@ -17,12 +17,14 @@ const DATA_DIR = path.join(__dirname, 'data');
 const DB_PATH = path.join(DATA_DIR, 'users.json');
 const MESSAGES_PATH = path.join(DATA_DIR, 'messages.json');
 const ORDERS_PATH = path.join(DATA_DIR, 'orders.json');
+const ADMINLOGS_PATH = path.join(DATA_DIR, 'adminlogs.json');
 
 function ensureDB() {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     if (!fs.existsSync(DB_PATH)) fs.writeFileSync(DB_PATH, JSON.stringify({ users: [], admins: ['1047671196214362265'] }, null, 2));
     if (!fs.existsSync(MESSAGES_PATH)) fs.writeFileSync(MESSAGES_PATH, JSON.stringify({ messages: [] }, null, 2));
     if (!fs.existsSync(ORDERS_PATH)) fs.writeFileSync(ORDERS_PATH, JSON.stringify({ orders: [] }, null, 2));
+    if (!fs.existsSync(ADMINLOGS_PATH)) fs.writeFileSync(ADMINLOGS_PATH, JSON.stringify({ logs: [] }, null, 2));
 }
 
 function readDB() {
@@ -53,6 +55,16 @@ function readOrders() {
 function writeOrders(data) {
     ensureDB();
     fs.writeFileSync(ORDERS_PATH, JSON.stringify(data, null, 2));
+}
+
+function readAdminLogs() {
+    ensureDB();
+    return JSON.parse(fs.readFileSync(ADMINLOGS_PATH, 'utf8'));
+}
+
+function writeAdminLogs(data) {
+    ensureDB();
+    fs.writeFileSync(ADMINLOGS_PATH, JSON.stringify(data, null, 2));
 }
 
 function saveUser(user) {
@@ -370,6 +382,39 @@ app.post('/api/admin/orders/delete', requireAdmin, (req, res) => {
     data.orders = data.orders.filter(o => o.id !== id);
     writeOrders(data);
     res.json({ success: true, message: 'تم حذف الطلب' });
+});
+
+// ============================================
+// ADMIN LOGS API (FiveM server sends logs here)
+// ============================================
+const ADMIN_LOG_SECRET = process.env.ADMIN_LOG_SECRET || 'roadtown-log-secret';
+
+app.post('/api/fivem/admin-log', (req, res) => {
+    const { secret, admin, action, target, details } = req.body;
+    if (secret !== ADMIN_LOG_SECRET) return res.status(403).json({ error: 'Unauthorized' });
+    if (!admin || !action) return res.status(400).json({ error: 'admin and action required' });
+    const data = readAdminLogs();
+    data.logs.unshift({
+        id: Date.now().toString(),
+        admin: admin,
+        action: action,
+        target: target || null,
+        details: details || null,
+        timestamp: new Date().toISOString()
+    });
+    if (data.logs.length > 5000) data.logs = data.logs.slice(0, 5000);
+    writeAdminLogs(data);
+    res.json({ success: true });
+});
+
+app.get('/api/admin/logs', requireAdmin, (req, res) => {
+    const data = readAdminLogs();
+    res.json(data);
+});
+
+app.post('/api/admin/logs/clear', requireOwner, (req, res) => {
+    writeAdminLogs({ logs: [] });
+    res.json({ success: true, message: 'تم مسح سجل الأدمن' });
 });
 
 // ============================================

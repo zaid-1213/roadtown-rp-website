@@ -106,6 +106,7 @@
                     <button class="admin-tab active" onclick="switchTab('users')">👥 المستخدمين</button>
                     <button class="admin-tab" onclick="switchTab('orders')">🛒 المشتريات <span class="tab-badge" id="ordersBadge" style="display:none">0</span></button>
                     <button class="admin-tab" onclick="switchTab('messages')">📨 الرسائل <span class="tab-badge" id="messagesBadge" style="display:none">0</span></button>
+                    <button class="admin-tab" onclick="switchTab('adminlogs')">🛡️ سجل الأدمن <span class="tab-badge" id="logsBadge" style="display:none">0</span></button>
                 </div>
 
                 <!-- TAB: USERS -->
@@ -234,6 +235,47 @@
                     </div>
                 </div>
 
+                <!-- TAB: ADMIN LOGS -->
+                <div class="admin-tab-content" id="tab-adminlogs">
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalLogs">-</span>
+                            <span class="admin-stat-label">إجمالي السجلات</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="todayLogs">-</span>
+                            <span class="admin-stat-label">اليوم</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="uniqueAdmins">-</span>
+                            <span class="admin-stat-label">أدمن نشط</span>
+                        </div>
+                    </div>
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>🛡️ سجل استخدام الأدمن في السيرفر</h3>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <input type="text" class="admin-search" id="searchLogs" placeholder="🔍 بحث في السجل...">
+                                <button class="admin-action-btn admin-btn-delete" onclick="clearLogs()" style="white-space:nowrap;">🗑️ مسح الكل</button>
+                            </div>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>الأدمن</th>
+                                    <th>الإجراء</th>
+                                    <th>الهدف</th>
+                                    <th>التفاصيل</th>
+                                    <th>التاريخ والوقت</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr><td colspan="5" class="admin-empty">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>
@@ -249,7 +291,7 @@
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script>
-        let allUsers = [], allOrders = [], allMessages = [];
+        let allUsers = [], allOrders = [], allMessages = [], allLogs = [];
 
         // ========== TAB SWITCHING ==========
         function switchTab(tab) {
@@ -425,9 +467,47 @@
             const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadMessages();
         }
 
+        // ========== ADMIN LOGS ==========
+        async function loadLogs() {
+            try {
+                const res = await fetch('/api/admin/logs');
+                const data = await res.json();
+                allLogs = data.logs || [];
+                document.getElementById('totalLogs').textContent = allLogs.length;
+                const today = new Date().toISOString().slice(0, 10);
+                const todayCount = allLogs.filter(l => l.timestamp && l.timestamp.slice(0, 10) === today).length;
+                document.getElementById('todayLogs').textContent = todayCount;
+                const uniqueAdminNames = [...new Set(allLogs.map(l => l.admin))];
+                document.getElementById('uniqueAdmins').textContent = uniqueAdminNames.length;
+                const badge = document.getElementById('logsBadge');
+                if (todayCount > 0) { badge.textContent = todayCount; badge.style.display = ''; } else { badge.style.display = 'none'; }
+                renderLogs(allLogs);
+            } catch(e) { document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="5" class="admin-empty">❌ خطأ</td></tr>'; }
+        }
+
+        function renderLogs(logs) {
+            const tbody = document.getElementById('logsTableBody');
+            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
+            tbody.innerHTML = logs.map(l => `<tr>
+                <td><span class="admin-user-name" style="color:#e67e22;">${l.admin}</span></td>
+                <td><span class="admin-badge admin-badge-pending">${l.action}</span></td>
+                <td><span class="admin-user-name">${l.target || '-'}</span></td>
+                <td><span class="msg-preview">${l.details || '-'}</span></td>
+                <td><span class="admin-date">${formatDate(l.timestamp)}</span></td>
+            </tr>`).join('');
+        }
+
+        async function clearLogs() {
+            if (!confirm('هل أنت متأكد من مسح كل السجلات؟')) return;
+            const res = await fetch('/api/admin/logs/clear', { method:'POST', headers:{'Content-Type':'application/json'} });
+            const d = await res.json();
+            showNotification(d.message||d.error, res.ok?'success':'error');
+            loadLogs();
+        }
+
         // ========== SEARCH ==========
         document.addEventListener('DOMContentLoaded', () => {
-            loadUsers(); loadOrders(); loadMessages();
+            loadUsers(); loadOrders(); loadMessages(); loadLogs();
 
             document.getElementById('searchUsers').addEventListener('input', function() {
                 const q = this.value.toLowerCase();
@@ -440,6 +520,10 @@
             document.getElementById('searchMessages').addEventListener('input', function() {
                 const q = this.value.toLowerCase();
                 renderMessages(allMessages.filter(m => m.name.toLowerCase().includes(q) || m.message.toLowerCase().includes(q) || (m.email||'').toLowerCase().includes(q)));
+            });
+            document.getElementById('searchLogs').addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                renderLogs(allLogs.filter(l => l.admin.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || (l.target||'').toLowerCase().includes(q) || (l.details||'').toLowerCase().includes(q)));
             });
         });
     </script>
