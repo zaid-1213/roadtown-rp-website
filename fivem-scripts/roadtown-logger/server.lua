@@ -29,67 +29,91 @@ end
 
 -- ============================================
 -- QB-ADMINMENU LOGGING
+-- يعترض qb-log:server:CreateLog لأن كل أوامر qb-adminmenu تستدعيه
 -- ============================================
 if Config.LogQBAdmin then
 
-    AddEventHandler('qb-admin:server:kill', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Kill", target = GetTargetName(player), details = "قتل اللاعب" })
+    -- قائمة الـ log categories المستخدمة في qb-adminmenu
+    local adminLogCategories = {
+        ['akill'] = 'Kill',
+        ['revive'] = 'Revive',
+        ['kik'] = 'Kick',
+        ['bans'] = 'Ban',
+        ['spectate'] = 'Spectate',
+        ['freze'] = 'Freeze',
+        ['bringgoto'] = 'GoTo/Bring',
+        ['openinv'] = 'Open Inventory',
+        ['aclothing'] = 'Clothing Menu',
+        ['admincar'] = 'Admin Car',
+    }
+
+    AddEventHandler('qb-log:server:CreateLog', function(name, title, color, message, tagEveryone)
+        -- فقط سجل الأوامر المتعلقة بالأدمن
+        local action = adminLogCategories[name]
+        if not action then return end
+
+        -- استخرج اسم الأدمن والهدف من الرسالة
+        -- الرسائل بصيغة: **AdminName** Has killed : TargetName
+        local adminName = message:match('%*%*(.-)%*%*') or "Unknown"
+        local targetName = "-"
+
+        -- أنماط مختلفة للرسائل
+        local patterns = {
+            'Has killed : (.+)',
+            'Has revived : (.+)',
+            'was kicked by .+ for',
+            'was banned by .+ for',
+            'is Spectating on %*%*(.-)%*%*',
+            'Has Frozen %*%*(.-)%*%*',
+            'Has unFrozen %*%*(.-)%*%*',
+            'Has TP to %*%*(.-)%*%*',
+            'Brought %*%*(.-)%*%*',
+            'Opened %*%*(.-)%*%* inventory',
+            'Opened clothing menu for %*%*(.-)%*%*',
+            'saved (.+) as his own vehicle',
+        }
+
+        -- للكيك والبان، الصيغة مختلفة: "TargetName was kicked by AdminName for reason"
+        if name == 'kik' or name == 'bans' then
+            local target = message:match('^(.+) was %w+ by')
+            local admin = message:match('was %w+ by (.+) for')
+            if target then targetName = target end
+            if admin then adminName = admin end
+        else
+            -- استخرج الهدف من الأنماط
+            for _, pattern in ipairs(patterns) do
+                local match = message:match(pattern)
+                if match then
+                    targetName = match
+                    break
+                end
+            end
+        end
+
+        -- حدد الإجراء بدقة أكثر
+        if name == 'freze' then
+            if message:find('unFrozen') then
+                action = 'Unfreeze'
+            else
+                action = 'Freeze'
+            end
+        elseif name == 'bringgoto' then
+            if message:find('Has TP to') then
+                action = 'GoTo'
+            elseif message:find('Brought') then
+                action = 'Bring'
+            end
+        end
+
+        SendLog("/api/fivem/admin-log", {
+            admin = adminName,
+            action = action,
+            target = targetName,
+            details = title or nil
+        })
     end)
 
-    AddEventHandler('qb-admin:server:revive', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Revive", target = GetTargetName(player), details = "إحياء اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:kick', function(player, reason)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Kick", target = GetTargetName(player), details = reason or "بدون سبب" })
-    end)
-
-    AddEventHandler('qb-admin:server:ban', function(player, time, reason)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Ban", target = GetTargetName(player), details = "السبب: "..(reason or "بدون سبب").." | المدة: "..tostring(time).." ثانية" })
-    end)
-
-    AddEventHandler('qb-admin:server:spectate', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Spectate", target = GetTargetName(player), details = "مراقبة اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:freeze', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Freeze", target = GetTargetName(player), details = "تجميد/فك تجميد" })
-    end)
-
-    AddEventHandler('qb-admin:server:goto', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "GoTo", target = GetTargetName(player), details = "انتقل إلى اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:bring', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "Bring", target = GetTargetName(player), details = "جلب اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:intovehicle', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "IntoVehicle", target = GetTargetName(player), details = "دخول سيارة اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:inventory', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "OpenInventory", target = GetTargetName(player), details = "فتح مخزون اللاعب" })
-    end)
-
-    AddEventHandler('qb-admin:server:cloth', function(player)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "ClothingMenu", target = GetTargetName(player), details = "فتح قائمة الملابس" })
-    end)
-
-    AddEventHandler('qb-admin:server:setPermissions', function(targetId, group)
-        local rank = (group and group[1] and group[1].rank) or "unknown"
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "SetPermissions", target = (GetPlayerName(targetId) or "Unknown").." (ID: "..tostring(targetId)..")", details = "الرتبة: "..rank })
-    end)
-
-    AddEventHandler('qb-admin:server:SaveCar', function(mods, vehicle)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "SaveCar", target = "-", details = "حفظ سيارة: "..tostring(vehicle and vehicle.model or "unknown") })
-    end)
-
-    AddEventHandler('qb-admin:giveWeapon', function(weapon)
-        SendLog("/api/fivem/admin-log", { admin = GetAdminName(source), action = "GiveWeapon", target = "-", details = "السلاح: "..tostring(weapon) })
-    end)
-
-    print("^2[RoadTown Logger] QB-Admin logging enabled^0")
+    print("^2[RoadTown Logger] QB-Admin logging enabled (via qb-log hook)^0")
 end
 
 -- ============================================
