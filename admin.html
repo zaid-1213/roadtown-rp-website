@@ -266,12 +266,11 @@
                                     <th>الأدمن</th>
                                     <th>الإجراء</th>
                                     <th>الهدف</th>
-                                    <th>التفاصيل</th>
                                     <th>التاريخ والوقت</th>
                                 </tr>
                             </thead>
                             <tbody id="logsTableBody">
-                                <tr><td colspan="5" class="admin-empty">جاري التحميل...</td></tr>
+                                <tr><td colspan="4" class="admin-empty">جاري التحميل...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -307,13 +306,11 @@
                                     <th>الأدمن</th>
                                     <th>الإجراء</th>
                                     <th>الهدف</th>
-                                    <th>السبب</th>
-                                    <th>التفاصيل</th>
                                     <th>التاريخ والوقت</th>
                                 </tr>
                             </thead>
                             <tbody id="txLogsTableBody">
-                                <tr><td colspan="6" class="admin-empty">جاري التحميل...</td></tr>
+                                <tr><td colspan="4" class="admin-empty">جاري التحميل...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -525,17 +522,16 @@
                 const badge = document.getElementById('logsBadge');
                 if (todayCount > 0) { badge.textContent = todayCount; badge.style.display = ''; } else { badge.style.display = 'none'; }
                 renderLogs(allLogs);
-            } catch(e) { document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="5" class="admin-empty">❌ خطأ</td></tr>'; }
+            } catch(e) { document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="4" class="admin-empty">❌ خطأ</td></tr>'; }
         }
 
         function renderLogs(logs) {
             const tbody = document.getElementById('logsTableBody');
-            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
+            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="4" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
             tbody.innerHTML = logs.map(l => `<tr>
                 <td><span class="admin-user-name" style="color:#e67e22;">${l.admin}</span></td>
                 <td><span class="admin-badge admin-badge-pending">${l.action}</span></td>
                 <td><span class="admin-user-name">${l.target || '-'}</span></td>
-                <td><span class="msg-preview">${l.details || '-'}</span></td>
                 <td><span class="admin-date">${formatDate(l.timestamp)}</span></td>
             </tr>`).join('');
         }
@@ -562,18 +558,16 @@
                 const badge = document.getElementById('txBadge');
                 if (todayCount > 0) { badge.textContent = todayCount; badge.style.display = ''; } else { badge.style.display = 'none'; }
                 renderTxLogs(allTxLogs);
-            } catch(e) { document.getElementById('txLogsTableBody').innerHTML = '<tr><td colspan="6" class="admin-empty">❌ خطأ</td></tr>'; }
+            } catch(e) { document.getElementById('txLogsTableBody').innerHTML = '<tr><td colspan="4" class="admin-empty">❌ خطأ</td></tr>'; }
         }
 
         function renderTxLogs(logs) {
             const tbody = document.getElementById('txLogsTableBody');
-            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
+            if (!logs.length) { tbody.innerHTML = '<tr><td colspan="4" class="admin-empty">لا يوجد سجلات</td></tr>'; return; }
             tbody.innerHTML = logs.map(l => `<tr>
                 <td><span class="admin-user-name" style="color:#66c0f4;">${l.admin}</span></td>
                 <td><span class="admin-badge admin-badge-cancelled">${l.action}</span></td>
                 <td><span class="admin-user-name">${l.target || '-'}</span></td>
-                <td><span class="msg-preview">${l.reason || '-'}</span></td>
-                <td><span class="msg-preview">${l.details || '-'}</span></td>
                 <td><span class="admin-date">${formatDate(l.timestamp)}</span></td>
             </tr>`).join('');
         }
