@@ -189,7 +189,7 @@
         }
         @media (max-width: 768px) {
             .admin-table-wrap { overflow-x: auto; }
-            .admin-table { min-width: 700px; }
+            .admin-table { min-width: 1000px; }
             .admin-search { width: 150px; }
         }
     </style>
@@ -254,9 +254,10 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>المستخدم</th>
-                                <th>ID</th>
-                                <th>المنصة</th>
+                                <th>Discord</th>
+                                <th>Discord ID</th>
+                                <th>Steam</th>
+                                <th>Steam ID</th>
                                 <th>الرتبة</th>
                                 <th>تاريخ التسجيل</th>
                                 <th>آخر دخول</th>
@@ -265,7 +266,7 @@
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
-                            <tr><td colspan="8" class="admin-empty">جاري التحميل...</td></tr>
+                            <tr><td colspan="9" class="admin-empty">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -305,8 +306,8 @@
         function updateStats(users) {
             document.getElementById('totalUsers').textContent = users.length;
             document.getElementById('totalAdmins').textContent = users.filter(u => u.isAdmin).length;
-            document.getElementById('discordUsers').textContent = users.filter(u => u.provider === 'discord').length;
-            document.getElementById('steamUsers').textContent = users.filter(u => u.provider === 'steam').length;
+            document.getElementById('discordUsers').textContent = users.filter(u => u.discordId).length;
+            document.getElementById('steamUsers').textContent = users.filter(u => u.steamId).length;
         }
 
         function formatDate(iso) {
@@ -318,7 +319,7 @@
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
             if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="admin-empty">لا يوجد مستخدمين مسجلين</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="admin-empty">لا يوجد مستخدمين مسجلين</td></tr>';
                 return;
             }
             tbody.innerHTML = users.map(u => `
@@ -326,11 +327,17 @@
                     <td>
                         <div class="admin-user-cell">
                             <img src="${u.avatar || 'assets/images/Main.png'}" alt="${u.username}" class="admin-user-avatar">
-                            <span class="admin-user-name">${u.username}</span>
+                            <span class="admin-user-name">${u.username || '-'}</span>
                         </div>
                     </td>
-                    <td><span class="admin-id-text">${u.id}</span></td>
-                    <td><span class="admin-badge admin-badge-${u.provider}">${u.provider === 'discord' ? '🎮 Discord' : '🎮 Steam'}</span></td>
+                    <td><span class="admin-id-text">${u.discordId || '-'}</span></td>
+                    <td>
+                        <div class="admin-user-cell">
+                            ${u.steamAvatar ? `<img src="${u.steamAvatar}" alt="${u.steamUsername}" class="admin-user-avatar">` : ''}
+                            <span class="admin-user-name">${u.steamUsername || '<span style="color:rgba(255,255,255,0.3)">غير مربوط</span>'}</span>
+                        </div>
+                    </td>
+                    <td><span class="admin-id-text">${u.steamId || '-'}</span></td>
                     <td><span class="admin-badge ${u.isAdmin ? 'admin-badge-admin' : 'admin-badge-user'}">${u.isAdmin ? '👑 أدمن' : '👤 عضو'}</span></td>
                     <td><span class="admin-date">${formatDate(u.registeredAt)}</span></td>
                     <td><span class="admin-date">${formatDate(u.lastLogin)}</span></td>
@@ -338,10 +345,10 @@
                     <td>
                         <div class="admin-actions">
                             ${u.isAdmin
-                                ? (u.id !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-demote" onclick="removeAdmin('${u.id}')">إزالة أدمن</button>` : '<span style="color:#e67e22;font-size:0.8rem">المالك</span>')
-                                : `<button class="admin-action-btn admin-btn-promote" onclick="addAdmin('${u.id}')">ترقية أدمن</button>`
+                                ? (u.discordId !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-demote" onclick="removeAdmin('${u.discordId}')">إزالة أدمن</button>` : '<span style="color:#e67e22;font-size:0.8rem">المالك</span>')
+                                : `<button class="admin-action-btn admin-btn-promote" onclick="addAdmin('${u.discordId}')">ترقية أدمن</button>`
                             }
-                            ${u.id !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-delete" onclick="deleteUser('${u.id}','${u.provider}')">حذف</button>` : ''}
+                            ${u.discordId !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-delete" onclick="deleteUser('${u.discordId}')">حذف</button>` : ''}
                         </div>
                     </td>
                 </tr>
@@ -372,12 +379,12 @@
             loadUsers();
         }
 
-        async function deleteUser(userId, provider) {
+        async function deleteUser(discordId) {
             if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
             const res = await fetch('/api/admin/delete-user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, provider })
+                body: JSON.stringify({ discordId })
             });
             const data = await res.json();
             showNotification(data.message || data.error, res.ok ? 'success' : 'error');
@@ -388,9 +395,10 @@
         document.getElementById('searchInput').addEventListener('input', function() {
             const q = this.value.toLowerCase();
             const filtered = allUsers.filter(u =>
-                u.username.toLowerCase().includes(q) ||
-                u.id.includes(q) ||
-                u.provider.includes(q)
+                (u.username || '').toLowerCase().includes(q) ||
+                (u.discordId || '').includes(q) ||
+                (u.steamUsername || '').toLowerCase().includes(q) ||
+                (u.steamId || '').includes(q)
             );
             renderUsers(filtered);
         });

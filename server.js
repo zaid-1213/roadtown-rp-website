@@ -221,7 +221,7 @@ app.get('/api/admin/users', requireAdmin, (req, res) => {
     const db = readDB();
     const users = db.users.map(u => ({
         ...u,
-        isAdmin: db.admins.includes(u.id)
+        isAdmin: db.admins.includes(u.discordId)
     }));
     res.json({ users, totalUsers: users.length });
 });
@@ -248,9 +248,12 @@ app.post('/api/admin/remove-admin', requireOwner, (req, res) => {
 });
 
 app.post('/api/admin/delete-user', requireAdmin, (req, res) => {
-    const { userId, provider } = req.body;
+    const { discordId } = req.body;
+    if (!discordId) return res.status(400).json({ error: 'discordId مطلوب' });
+    if (discordId === '1047671196214362265') return res.status(400).json({ error: 'لا يمكن حذف المالك' });
     const db = readDB();
-    db.users = db.users.filter(u => !(u.id === userId && u.provider === provider));
+    db.users = db.users.filter(u => u.discordId !== discordId);
+    db.admins = db.admins.filter(id => id !== discordId);
     writeDB(db);
     res.json({ success: true, message: 'تم حذف المستخدم' });
 });
