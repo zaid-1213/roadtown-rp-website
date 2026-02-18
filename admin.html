@@ -8,190 +8,64 @@
     <link rel="stylesheet" href="styles-pages.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-        .admin-stat-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        .admin-stat-card:hover {
-            border-color: rgba(230,126,34,0.3);
-            transform: translateY(-3px);
-        }
-        .admin-stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #e67e22;
-            display: block;
-        }
-        .admin-stat-label {
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-            margin-top: 0.3rem;
-        }
-        .admin-table-wrap {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .admin-table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .admin-table-header h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        .admin-search {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 8px 16px;
-            color: #fff;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 0.9rem;
-            outline: none;
-            width: 250px;
-            transition: border-color 0.3s;
-        }
-        .admin-search:focus {
-            border-color: rgba(230,126,34,0.5);
-        }
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .admin-table th {
-            background: rgba(255,255,255,0.03);
-            padding: 12px 16px;
-            text-align: right;
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .admin-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 0.95rem;
-            vertical-align: middle;
-        }
-        .admin-table tr:hover td {
-            background: rgba(230,126,34,0.03);
-        }
-        .admin-user-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .admin-user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.1);
-        }
-        .admin-user-name {
-            font-weight: 700;
-        }
-        .admin-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .admin-badge-admin {
-            background: rgba(230,126,34,0.15);
-            color: #e67e22;
-            border: 1px solid rgba(230,126,34,0.3);
-        }
-        .admin-badge-user {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .admin-badge-discord {
-            background: rgba(88,101,242,0.15);
-            color: #7289da;
-            border: 1px solid rgba(88,101,242,0.3);
-        }
-        .admin-badge-steam {
-            background: rgba(42,71,94,0.2);
-            color: #66c0f4;
-            border: 1px solid rgba(42,71,94,0.4);
-        }
-        .admin-actions {
-            display: flex;
-            gap: 6px;
-        }
-        .admin-action-btn {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: none;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .admin-btn-promote {
-            background: rgba(230,126,34,0.1);
-            color: #e67e22;
-            border: 1px solid rgba(230,126,34,0.2);
-        }
-        .admin-btn-promote:hover {
-            background: rgba(230,126,34,0.2);
-        }
-        .admin-btn-demote {
-            background: rgba(255,165,0,0.1);
-            color: #ffa500;
-            border: 1px solid rgba(255,165,0,0.2);
-        }
-        .admin-btn-demote:hover {
-            background: rgba(255,165,0,0.2);
-        }
-        .admin-btn-delete {
-            background: rgba(255,68,68,0.1);
-            color: #ff4444;
-            border: 1px solid rgba(255,68,68,0.2);
-        }
-        .admin-btn-delete:hover {
-            background: rgba(255,68,68,0.2);
-        }
-        .admin-empty {
-            text-align: center;
-            padding: 3rem;
-            color: rgba(255,255,255,0.3);
-        }
-        .admin-date {
-            color: rgba(255,255,255,0.4);
-            font-size: 0.85rem;
-        }
-        .admin-id-text {
-            color: rgba(255,255,255,0.3);
-            font-size: 0.8rem;
-            font-family: monospace;
-        }
-        @media (max-width: 768px) {
-            .admin-table-wrap { overflow-x: auto; }
-            .admin-table { min-width: 1000px; }
-            .admin-search { width: 150px; }
-        }
+        .admin-tabs { display:flex; gap:8px; margin-bottom:2rem; flex-wrap:wrap; }
+        .admin-tab { padding:10px 24px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.5); font-family:'Tajawal',sans-serif; font-size:0.95rem; font-weight:700; cursor:pointer; transition:all .3s; position:relative; }
+        .admin-tab:hover { border-color:rgba(230,126,34,0.3); color:#fff; }
+        .admin-tab.active { background:rgba(230,126,34,0.15); border-color:#e67e22; color:#e67e22; }
+        .admin-tab .tab-badge { position:absolute; top:-6px; left:-6px; background:#e67e22; color:#fff; font-size:0.7rem; padding:2px 7px; border-radius:10px; min-width:18px; text-align:center; }
+        .admin-tab-content { display:none; }
+        .admin-tab-content.active { display:block; }
+        .admin-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1.2rem; margin-bottom:2rem; }
+        .admin-stat-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.2rem; text-align:center; transition:all .3s; }
+        .admin-stat-card:hover { border-color:rgba(230,126,34,0.3); transform:translateY(-3px); }
+        .admin-stat-number { font-size:2.2rem; font-weight:900; color:#e67e22; display:block; }
+        .admin-stat-label { color:rgba(255,255,255,0.5); font-size:0.85rem; margin-top:0.2rem; }
+        .admin-table-wrap { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:16px; overflow:hidden; }
+        .admin-table-header { display:flex; justify-content:space-between; align-items:center; padding:1.2rem 1.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .admin-table-header h3 { font-size:1.2rem; font-weight:700; }
+        .admin-search { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 16px; color:#fff; font-family:'Tajawal',sans-serif; font-size:0.9rem; outline:none; width:250px; transition:border-color .3s; }
+        .admin-search:focus { border-color:rgba(230,126,34,0.5); }
+        .admin-table { width:100%; border-collapse:collapse; }
+        .admin-table th { background:rgba(255,255,255,0.03); padding:12px 16px; text-align:right; font-weight:700; font-size:0.85rem; color:rgba(255,255,255,0.5); letter-spacing:0.5px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .admin-table td { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.95rem; vertical-align:middle; }
+        .admin-table tr:hover td { background:rgba(230,126,34,0.03); }
+        .admin-user-cell { display:flex; align-items:center; gap:10px; }
+        .admin-user-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.1); }
+        .admin-user-name { font-weight:700; }
+        .admin-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; }
+        .admin-badge-admin { background:rgba(230,126,34,0.15); color:#e67e22; border:1px solid rgba(230,126,34,0.3); }
+        .admin-badge-user { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.1); }
+        .admin-badge-pending { background:rgba(255,165,0,0.15); color:#ffa500; border:1px solid rgba(255,165,0,0.3); }
+        .admin-badge-completed { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); }
+        .admin-badge-cancelled { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+        .admin-badge-unread { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+        .admin-badge-read { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); }
+        .admin-actions { display:flex; gap:6px; flex-wrap:wrap; }
+        .admin-action-btn { padding:6px 12px; border-radius:8px; border:none; font-family:'Tajawal',sans-serif; font-size:0.8rem; font-weight:700; cursor:pointer; transition:all .3s; }
+        .admin-btn-promote { background:rgba(230,126,34,0.1); color:#e67e22; border:1px solid rgba(230,126,34,0.2); }
+        .admin-btn-promote:hover { background:rgba(230,126,34,0.2); }
+        .admin-btn-demote { background:rgba(255,165,0,0.1); color:#ffa500; border:1px solid rgba(255,165,0,0.2); }
+        .admin-btn-demote:hover { background:rgba(255,165,0,0.2); }
+        .admin-btn-delete { background:rgba(255,68,68,0.1); color:#ff4444; border:1px solid rgba(255,68,68,0.2); }
+        .admin-btn-delete:hover { background:rgba(255,68,68,0.2); }
+        .admin-btn-view { background:rgba(88,101,242,0.1); color:#7289da; border:1px solid rgba(88,101,242,0.2); }
+        .admin-btn-view:hover { background:rgba(88,101,242,0.2); }
+        .admin-btn-success { background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.2); }
+        .admin-btn-success:hover { background:rgba(34,197,94,0.2); }
+        .admin-empty { text-align:center; padding:3rem; color:rgba(255,255,255,0.3); }
+        .admin-date { color:rgba(255,255,255,0.4); font-size:0.85rem; }
+        .admin-id-text { color:rgba(255,255,255,0.3); font-size:0.8rem; font-family:monospace; }
+        .msg-preview { max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:rgba(255,255,255,0.6); font-size:0.9rem; }
+        .msg-detail-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9998; display:flex; align-items:center; justify-content:center; }
+        .msg-detail-box { background:#1a1a2e; border:2px solid rgba(230,126,34,0.3); border-radius:16px; padding:2rem; max-width:550px; width:90%; max-height:80vh; overflow-y:auto; color:#fff; font-family:'Tajawal',sans-serif; }
+        .msg-detail-box h3 { color:#e67e22; margin-bottom:1rem; }
+        .msg-detail-box .msg-field { margin-bottom:0.8rem; }
+        .msg-detail-box .msg-field label { color:rgba(255,255,255,0.5); font-size:0.85rem; display:block; margin-bottom:0.2rem; }
+        .msg-detail-box .msg-field p { background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:10px; line-height:1.7; }
+        .msg-detail-box .msg-close { margin-top:1rem; padding:8px 24px; border-radius:10px; border:1px solid rgba(230,126,34,0.3); background:rgba(230,126,34,0.1); color:#e67e22; font-family:'Tajawal',sans-serif; font-weight:700; cursor:pointer; }
+        .order-items-list { font-size:0.85rem; color:rgba(255,255,255,0.6); }
+        .order-items-list span { display:block; }
+        @media (max-width:768px) { .admin-table-wrap{overflow-x:auto;} .admin-table{min-width:800px;} .admin-search{width:150px;} .admin-tabs{gap:4px;} .admin-tab{padding:8px 14px;font-size:0.85rem;} }
     </style>
 </head>
 <body>
@@ -221,55 +95,145 @@
             <div class="page-hero-content">
                 <div class="page-hero-tag">👑 Admin Panel</div>
                 <h1 class="page-hero-title">لوحة الإدارة</h1>
-                <p class="page-hero-desc">إدارة المستخدمين والصلاحيات</p>
+                <p class="page-hero-desc">إدارة المستخدمين والطلبات والرسائل</p>
             </div>
         </section>
 
         <section class="pg-section pg-section-dark">
             <div class="container">
-                <div class="admin-stats" id="adminStats">
-                    <div class="admin-stat-card">
-                        <span class="admin-stat-number" id="totalUsers">-</span>
-                        <span class="admin-stat-label">إجمالي المستخدمين</span>
+                <!-- TABS -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchTab('users')">👥 المستخدمين</button>
+                    <button class="admin-tab" onclick="switchTab('orders')">🛒 المشتريات <span class="tab-badge" id="ordersBadge" style="display:none">0</span></button>
+                    <button class="admin-tab" onclick="switchTab('messages')">📨 الرسائل <span class="tab-badge" id="messagesBadge" style="display:none">0</span></button>
+                </div>
+
+                <!-- TAB: USERS -->
+                <div class="admin-tab-content active" id="tab-users">
+                    <div class="admin-stats" id="adminStats">
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalUsers">-</span>
+                            <span class="admin-stat-label">إجمالي المستخدمين</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalAdmins">-</span>
+                            <span class="admin-stat-label">الإداريين</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="discordUsers">-</span>
+                            <span class="admin-stat-label">عبر Discord</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="steamUsers">-</span>
+                            <span class="admin-stat-label">عبر Steam</span>
+                        </div>
                     </div>
-                    <div class="admin-stat-card">
-                        <span class="admin-stat-number" id="totalAdmins">-</span>
-                        <span class="admin-stat-label">الإداريين</span>
-                    </div>
-                    <div class="admin-stat-card">
-                        <span class="admin-stat-number" id="discordUsers">-</span>
-                        <span class="admin-stat-label">عبر Discord</span>
-                    </div>
-                    <div class="admin-stat-card">
-                        <span class="admin-stat-number" id="steamUsers">-</span>
-                        <span class="admin-stat-label">عبر Steam</span>
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>👥 المستخدمين المسجلين</h3>
+                            <input type="text" class="admin-search" id="searchUsers" placeholder="🔍 بحث عن مستخدم...">
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Discord</th>
+                                    <th>Discord ID</th>
+                                    <th>Steam</th>
+                                    <th>Steam ID</th>
+                                    <th>الرتبة</th>
+                                    <th>تاريخ التسجيل</th>
+                                    <th>آخر دخول</th>
+                                    <th>عدد الدخول</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="9" class="admin-empty">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="admin-table-wrap">
-                    <div class="admin-table-header">
-                        <h3>👥 المستخدمين المسجلين</h3>
-                        <input type="text" class="admin-search" id="searchInput" placeholder="🔍 بحث عن مستخدم...">
+                <!-- TAB: ORDERS -->
+                <div class="admin-tab-content" id="tab-orders">
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalOrders">-</span>
+                            <span class="admin-stat-label">إجمالي الطلبات</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="pendingOrders">-</span>
+                            <span class="admin-stat-label">قيد الانتظار</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="completedOrders">-</span>
+                            <span class="admin-stat-label">مكتملة</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalRevenue">-</span>
+                            <span class="admin-stat-label">إجمالي المبيعات (ريال)</span>
+                        </div>
                     </div>
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Discord</th>
-                                <th>Discord ID</th>
-                                <th>Steam</th>
-                                <th>Steam ID</th>
-                                <th>الرتبة</th>
-                                <th>تاريخ التسجيل</th>
-                                <th>آخر دخول</th>
-                                <th>عدد الدخول</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <tr><td colspan="9" class="admin-empty">جاري التحميل...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>🛒 طلبات المتجر</h3>
+                            <input type="text" class="admin-search" id="searchOrders" placeholder="🔍 بحث عن طلب...">
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>المستخدم</th>
+                                    <th>المنتجات</th>
+                                    <th>المبلغ</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <tr><td colspan="7" class="admin-empty">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
+                <!-- TAB: MESSAGES -->
+                <div class="admin-tab-content" id="tab-messages">
+                    <div class="admin-stats">
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="totalMessages">-</span>
+                            <span class="admin-stat-label">إجمالي الرسائل</span>
+                        </div>
+                        <div class="admin-stat-card">
+                            <span class="admin-stat-number" id="unreadMessages">-</span>
+                            <span class="admin-stat-label">غير مقروءة</span>
+                        </div>
+                    </div>
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>📨 رسائل اتصل بنا</h3>
+                            <input type="text" class="admin-search" id="searchMessages" placeholder="🔍 بحث عن رسالة...">
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>المرسل</th>
+                                    <th>البريد</th>
+                                    <th>النوع</th>
+                                    <th>الرسالة</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messagesTableBody">
+                                <tr><td colspan="7" class="admin-empty">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>
@@ -285,126 +249,199 @@
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script>
-        let allUsers = [];
+        let allUsers = [], allOrders = [], allMessages = [];
 
-        async function loadUsers() {
-            try {
-                const res = await fetch('/api/admin/users');
-                if (res.status === 403) {
-                    document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="8" class="admin-empty">⛔ ليس لديك صلاحية</td></tr>';
-                    return;
-                }
-                const data = await res.json();
-                allUsers = data.users;
-                updateStats(data.users);
-                renderUsers(data.users);
-            } catch (e) {
-                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="8" class="admin-empty">❌ خطأ في تحميل البيانات</td></tr>';
-            }
+        // ========== TAB SWITCHING ==========
+        function switchTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
         }
 
-        function updateStats(users) {
-            document.getElementById('totalUsers').textContent = users.length;
-            document.getElementById('totalAdmins').textContent = users.filter(u => u.isAdmin).length;
-            document.getElementById('discordUsers').textContent = users.filter(u => u.discordId).length;
-            document.getElementById('steamUsers').textContent = users.filter(u => u.steamId).length;
-        }
-
+        // ========== DATE FORMAT ==========
         function formatDate(iso) {
             if (!iso) return '-';
             const d = new Date(iso);
-            return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            return d.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        }
+
+        const categoryLabels = { bug:'بلاغ مشكلة', purchase:'استفسار شراء', account:'مشكلة حساب', other:'أخرى' };
+        const statusLabels = { pending:'قيد الانتظار', completed:'مكتمل', cancelled:'ملغي' };
+
+        // ========== USERS ==========
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users');
+                if (res.status === 403) { document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="9" class="admin-empty">⛔ ليس لديك صلاحية</td></tr>'; return; }
+                const data = await res.json();
+                allUsers = data.users;
+                document.getElementById('totalUsers').textContent = allUsers.length;
+                document.getElementById('totalAdmins').textContent = allUsers.filter(u => u.isAdmin).length;
+                document.getElementById('discordUsers').textContent = allUsers.filter(u => u.discordId).length;
+                document.getElementById('steamUsers').textContent = allUsers.filter(u => u.steamId).length;
+                renderUsers(allUsers);
+            } catch (e) { document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="9" class="admin-empty">❌ خطأ</td></tr>'; }
         }
 
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="admin-empty">لا يوجد مستخدمين مسجلين</td></tr>';
-                return;
-            }
-            tbody.innerHTML = users.map(u => `
-                <tr>
-                    <td>
-                        <div class="admin-user-cell">
-                            <img src="${u.avatar || 'assets/images/Main.png'}" alt="${u.username}" class="admin-user-avatar">
-                            <span class="admin-user-name">${u.username || '-'}</span>
-                        </div>
-                    </td>
-                    <td><span class="admin-id-text">${u.discordId || '-'}</span></td>
-                    <td>
-                        <div class="admin-user-cell">
-                            ${u.steamAvatar ? `<img src="${u.steamAvatar}" alt="${u.steamUsername}" class="admin-user-avatar">` : ''}
-                            <span class="admin-user-name">${u.steamUsername || '<span style="color:rgba(255,255,255,0.3)">غير مربوط</span>'}</span>
-                        </div>
-                    </td>
-                    <td><span class="admin-id-text">${u.steamId || '-'}</span></td>
-                    <td><span class="admin-badge ${u.isAdmin ? 'admin-badge-admin' : 'admin-badge-user'}">${u.isAdmin ? '👑 أدمن' : '👤 عضو'}</span></td>
-                    <td><span class="admin-date">${formatDate(u.registeredAt)}</span></td>
-                    <td><span class="admin-date">${formatDate(u.lastLogin)}</span></td>
-                    <td>${u.loginCount || 1}</td>
-                    <td>
-                        <div class="admin-actions">
-                            ${u.isAdmin
-                                ? (u.discordId !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-demote" onclick="removeAdmin('${u.discordId}')">إزالة أدمن</button>` : '<span style="color:#e67e22;font-size:0.8rem">المالك</span>')
-                                : `<button class="admin-action-btn admin-btn-promote" onclick="addAdmin('${u.discordId}')">ترقية أدمن</button>`
-                            }
-                            ${u.discordId !== '1047671196214362265' ? `<button class="admin-action-btn admin-btn-delete" onclick="deleteUser('${u.discordId}')">حذف</button>` : ''}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="9" class="admin-empty">لا يوجد مستخدمين</td></tr>'; return; }
+            tbody.innerHTML = users.map(u => `<tr>
+                <td><div class="admin-user-cell"><img src="${u.avatar||'assets/images/Main.png'}" class="admin-user-avatar"><span class="admin-user-name">${u.username||'-'}</span></div></td>
+                <td><span class="admin-id-text">${u.discordId||'-'}</span></td>
+                <td><div class="admin-user-cell">${u.steamAvatar?`<img src="${u.steamAvatar}" class="admin-user-avatar">`:''}<span class="admin-user-name">${u.steamUsername||'<span style="color:rgba(255,255,255,0.3)">غير مربوط</span>'}</span></div></td>
+                <td><span class="admin-id-text">${u.steamId||'-'}</span></td>
+                <td><span class="admin-badge ${u.isAdmin?'admin-badge-admin':'admin-badge-user'}">${u.isAdmin?'👑 أدمن':'👤 عضو'}</span></td>
+                <td><span class="admin-date">${formatDate(u.registeredAt)}</span></td>
+                <td><span class="admin-date">${formatDate(u.lastLogin)}</span></td>
+                <td>${u.loginCount||1}</td>
+                <td><div class="admin-actions">
+                    ${u.isAdmin?(u.discordId!=='1047671196214362265'?`<button class="admin-action-btn admin-btn-demote" onclick="removeAdmin('${u.discordId}')">إزالة أدمن</button>`:'<span style="color:#e67e22;font-size:0.8rem">المالك</span>'):`<button class="admin-action-btn admin-btn-promote" onclick="addAdmin('${u.discordId}')">ترقية أدمن</button>`}
+                    ${u.discordId!=='1047671196214362265'?`<button class="admin-action-btn admin-btn-delete" onclick="deleteUser('${u.discordId}')">حذف</button>`:''}
+                </div></td>
+            </tr>`).join('');
         }
 
         async function addAdmin(userId) {
-            if (!confirm('هل تريد ترقية هذا المستخدم لأدمن؟')) return;
-            const res = await fetch('/api/admin/add-admin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
-            });
-            const data = await res.json();
-            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
-            loadUsers();
+            if (!confirm('ترقية لأدمن؟')) return;
+            const res = await fetch('/api/admin/add-admin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadUsers();
         }
-
         async function removeAdmin(userId) {
-            if (!confirm('هل تريد إزالة صلاحية الأدمن من هذا المستخدم؟')) return;
-            const res = await fetch('/api/admin/remove-admin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
-            });
-            const data = await res.json();
-            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
-            loadUsers();
+            if (!confirm('إزالة الأدمن؟')) return;
+            const res = await fetch('/api/admin/remove-admin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({userId}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadUsers();
         }
-
         async function deleteUser(discordId) {
-            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-            const res = await fetch('/api/admin/delete-user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ discordId })
-            });
-            const data = await res.json();
-            showNotification(data.message || data.error, res.ok ? 'success' : 'error');
-            loadUsers();
+            if (!confirm('حذف المستخدم؟')) return;
+            const res = await fetch('/api/admin/delete-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({discordId}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadUsers();
         }
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const q = this.value.toLowerCase();
-            const filtered = allUsers.filter(u =>
-                (u.username || '').toLowerCase().includes(q) ||
-                (u.discordId || '').includes(q) ||
-                (u.steamUsername || '').toLowerCase().includes(q) ||
-                (u.steamId || '').includes(q)
-            );
-            renderUsers(filtered);
-        });
+        // ========== ORDERS ==========
+        async function loadOrders() {
+            try {
+                const res = await fetch('/api/admin/orders');
+                const data = await res.json();
+                allOrders = data.orders || [];
+                document.getElementById('totalOrders').textContent = allOrders.length;
+                document.getElementById('pendingOrders').textContent = allOrders.filter(o => o.status==='pending').length;
+                document.getElementById('completedOrders').textContent = allOrders.filter(o => o.status==='completed').length;
+                document.getElementById('totalRevenue').textContent = allOrders.filter(o => o.status==='completed').reduce((s,o) => s+o.total, 0).toLocaleString();
+                const pending = allOrders.filter(o => o.status==='pending').length;
+                const badge = document.getElementById('ordersBadge');
+                if (pending > 0) { badge.textContent = pending; badge.style.display = ''; } else { badge.style.display = 'none'; }
+                renderOrders(allOrders);
+            } catch(e) { document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="7" class="admin-empty">❌ خطأ</td></tr>'; }
+        }
 
-        // Load on page ready
-        document.addEventListener('DOMContentLoaded', loadUsers);
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" class="admin-empty">لا يوجد طلبات</td></tr>'; return; }
+            tbody.innerHTML = orders.map(o => `<tr>
+                <td><span class="admin-id-text">#${o.id.slice(-6)}</span></td>
+                <td><span class="admin-user-name">${o.username||'-'}</span></td>
+                <td><div class="order-items-list">${(o.items||[]).map(i => `<span>${i.name} × ${i.quantity}</span>`).join('')}</div></td>
+                <td><strong style="color:#e67e22">${(o.total||0).toLocaleString()} ريال</strong></td>
+                <td><span class="admin-badge admin-badge-${o.status}">${statusLabels[o.status]||o.status}</span></td>
+                <td><span class="admin-date">${formatDate(o.createdAt)}</span></td>
+                <td><div class="admin-actions">
+                    ${o.status==='pending'?`<button class="admin-action-btn admin-btn-success" onclick="updateOrderStatus('${o.id}','completed')">✅ إتمام</button><button class="admin-action-btn admin-btn-delete" onclick="updateOrderStatus('${o.id}','cancelled')">❌ إلغاء</button>`:''}
+                    <button class="admin-action-btn admin-btn-delete" onclick="deleteOrder('${o.id}')">حذف</button>
+                </div></td>
+            </tr>`).join('');
+        }
+
+        async function updateOrderStatus(id, status) {
+            const res = await fetch('/api/admin/orders/status', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id,status}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadOrders();
+        }
+        async function deleteOrder(id) {
+            if (!confirm('حذف الطلب؟')) return;
+            const res = await fetch('/api/admin/orders/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadOrders();
+        }
+
+        // ========== MESSAGES ==========
+        async function loadMessages() {
+            try {
+                const res = await fetch('/api/admin/messages');
+                const data = await res.json();
+                allMessages = data.messages || [];
+                document.getElementById('totalMessages').textContent = allMessages.length;
+                const unread = allMessages.filter(m => !m.read).length;
+                document.getElementById('unreadMessages').textContent = unread;
+                const badge = document.getElementById('messagesBadge');
+                if (unread > 0) { badge.textContent = unread; badge.style.display = ''; } else { badge.style.display = 'none'; }
+                renderMessages(allMessages);
+            } catch(e) { document.getElementById('messagesTableBody').innerHTML = '<tr><td colspan="7" class="admin-empty">❌ خطأ</td></tr>'; }
+        }
+
+        function renderMessages(messages) {
+            const tbody = document.getElementById('messagesTableBody');
+            if (!messages.length) { tbody.innerHTML = '<tr><td colspan="7" class="admin-empty">لا يوجد رسائل</td></tr>'; return; }
+            tbody.innerHTML = messages.map(m => `<tr style="${!m.read?'background:rgba(230,126,34,0.03)':''}">
+                <td><span class="admin-user-name">${m.name}</span>${m.username?`<br><span class="admin-id-text">${m.username}</span>`:''}</td>
+                <td><span class="admin-id-text">${m.email||'-'}</span></td>
+                <td><span class="admin-badge admin-badge-user">${categoryLabels[m.category]||m.category}</span></td>
+                <td><div class="msg-preview">${m.message}</div></td>
+                <td><span class="admin-badge ${m.read?'admin-badge-read':'admin-badge-unread'}">${m.read?'مقروءة':'جديدة'}</span></td>
+                <td><span class="admin-date">${formatDate(m.createdAt)}</span></td>
+                <td><div class="admin-actions">
+                    <button class="admin-action-btn admin-btn-view" onclick="viewMessage('${m.id}')">عرض</button>
+                    <button class="admin-action-btn admin-btn-delete" onclick="deleteMessage('${m.id}')">حذف</button>
+                </div></td>
+            </tr>`).join('');
+        }
+
+        function viewMessage(id) {
+            const m = allMessages.find(x => x.id === id);
+            if (!m) return;
+            const overlay = document.createElement('div');
+            overlay.className = 'msg-detail-overlay';
+            overlay.innerHTML = `<div class="msg-detail-box">
+                <h3>📨 تفاصيل الرسالة</h3>
+                <div class="msg-field"><label>المرسل</label><p>${m.name}${m.username?' ('+m.username+')':''}</p></div>
+                <div class="msg-field"><label>البريد</label><p>${m.email||'-'}</p></div>
+                ${m.bankId?`<div class="msg-field"><label>رقم الحساب</label><p>${m.bankId}</p></div>`:''}
+                <div class="msg-field"><label>النوع</label><p>${categoryLabels[m.category]||m.category}</p></div>
+                <div class="msg-field"><label>الرسالة</label><p>${m.message}</p></div>
+                <div class="msg-field"><label>التاريخ</label><p>${formatDate(m.createdAt)}</p></div>
+                <button class="msg-close" onclick="this.closest('.msg-detail-overlay').remove()">إغلاق</button>
+            </div>`;
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+            if (!m.read) markMessageRead(id);
+        }
+
+        async function markMessageRead(id) {
+            await fetch('/api/admin/messages/read', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+            loadMessages();
+        }
+        async function deleteMessage(id) {
+            if (!confirm('حذف الرسالة؟')) return;
+            const res = await fetch('/api/admin/messages/delete', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id}) });
+            const d = await res.json(); showNotification(d.message||d.error, res.ok?'success':'error'); loadMessages();
+        }
+
+        // ========== SEARCH ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers(); loadOrders(); loadMessages();
+
+            document.getElementById('searchUsers').addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                renderUsers(allUsers.filter(u => (u.username||'').toLowerCase().includes(q) || (u.discordId||'').includes(q) || (u.steamUsername||'').toLowerCase().includes(q) || (u.steamId||'').includes(q)));
+            });
+            document.getElementById('searchOrders').addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                renderOrders(allOrders.filter(o => (o.username||'').toLowerCase().includes(q) || o.id.includes(q) || (o.items||[]).some(i => i.name.toLowerCase().includes(q))));
+            });
+            document.getElementById('searchMessages').addEventListener('input', function() {
+                const q = this.value.toLowerCase();
+                renderMessages(allMessages.filter(m => m.name.toLowerCase().includes(q) || m.message.toLowerCase().includes(q) || (m.email||'').toLowerCase().includes(q)));
+            });
+        });
     </script>
 </body>
 </html>

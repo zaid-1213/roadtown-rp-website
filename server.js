@@ -13,12 +13,16 @@ const PORT = process.env.PORT || 3000;
 // ============================================
 // DATABASE (JSON file)
 // ============================================
-const DB_PATH = path.join(__dirname, 'data', 'users.json');
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_PATH = path.join(DATA_DIR, 'users.json');
+const MESSAGES_PATH = path.join(DATA_DIR, 'messages.json');
+const ORDERS_PATH = path.join(DATA_DIR, 'orders.json');
 
 function ensureDB() {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     if (!fs.existsSync(DB_PATH)) fs.writeFileSync(DB_PATH, JSON.stringify({ users: [], admins: ['1047671196214362265'] }, null, 2));
+    if (!fs.existsSync(MESSAGES_PATH)) fs.writeFileSync(MESSAGES_PATH, JSON.stringify({ messages: [] }, null, 2));
+    if (!fs.existsSync(ORDERS_PATH)) fs.writeFileSync(ORDERS_PATH, JSON.stringify({ orders: [] }, null, 2));
 }
 
 function readDB() {
@@ -29,6 +33,26 @@ function readDB() {
 function writeDB(data) {
     ensureDB();
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+function readMessages() {
+    ensureDB();
+    return JSON.parse(fs.readFileSync(MESSAGES_PATH, 'utf8'));
+}
+
+function writeMessages(data) {
+    ensureDB();
+    fs.writeFileSync(MESSAGES_PATH, JSON.stringify(data, null, 2));
+}
+
+function readOrders() {
+    ensureDB();
+    return JSON.parse(fs.readFileSync(ORDERS_PATH, 'utf8'));
+}
+
+function writeOrders(data) {
+    ensureDB();
+    fs.writeFileSync(ORDERS_PATH, JSON.stringify(data, null, 2));
 }
 
 function saveUser(user) {
@@ -257,6 +281,95 @@ app.post('/api/admin/delete-user', requireAdmin, (req, res) => {
     db.admins = db.admins.filter(id => id !== discordId);
     writeDB(db);
     res.json({ success: true, message: 'تم حذف المستخدم' });
+});
+
+// ============================================
+// CONTACT MESSAGES API
+// ============================================
+app.post('/api/contact', (req, res) => {
+    const { name, email, bankId, category, message } = req.body;
+    if (!name || !message || !category) return res.status(400).json({ error: 'جميع الحقول المطلوبة يجب تعبئتها' });
+    const data = readMessages();
+    const msg = {
+        id: Date.now().toString(),
+        name,
+        email: email || '',
+        bankId: bankId || '',
+        category,
+        message,
+        userId: req.user ? req.user.discordId : null,
+        username: req.user ? req.user.username : null,
+        createdAt: new Date().toISOString(),
+        read: false
+    };
+    data.messages.unshift(msg);
+    writeMessages(data);
+    res.json({ success: true, message: 'تم إرسال رسالتك بنجاح' });
+});
+
+app.get('/api/admin/messages', requireAdmin, (req, res) => {
+    const data = readMessages();
+    res.json(data);
+});
+
+app.post('/api/admin/messages/read', requireAdmin, (req, res) => {
+    const { id } = req.body;
+    const data = readMessages();
+    const msg = data.messages.find(m => m.id === id);
+    if (msg) { msg.read = true; writeMessages(data); }
+    res.json({ success: true });
+});
+
+app.post('/api/admin/messages/delete', requireAdmin, (req, res) => {
+    const { id } = req.body;
+    const data = readMessages();
+    data.messages = data.messages.filter(m => m.id !== id);
+    writeMessages(data);
+    res.json({ success: true, message: 'تم حذف الرسالة' });
+});
+
+// ============================================
+// ORDERS API
+// ============================================
+app.post('/api/orders', requireAuth, (req, res) => {
+    const { items, total } = req.body;
+    if (!items || items.length === 0) return res.status(400).json({ error: 'السلة فارغة' });
+    const data = readOrders();
+    const order = {
+        id: Date.now().toString(),
+        userId: req.user.discordId,
+        username: req.user.username,
+        steamId: req.user.steamId || null,
+        steamUsername: req.user.steamUsername || null,
+        items,
+        total,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+    };
+    data.orders.unshift(order);
+    writeOrders(data);
+    res.json({ success: true, message: 'تم إرسال الطلب بنجاح', orderId: order.id });
+});
+
+app.get('/api/admin/orders', requireAdmin, (req, res) => {
+    const data = readOrders();
+    res.json(data);
+});
+
+app.post('/api/admin/orders/status', requireAdmin, (req, res) => {
+    const { id, status } = req.body;
+    const data = readOrders();
+    const order = data.orders.find(o => o.id === id);
+    if (order) { order.status = status; writeOrders(data); }
+    res.json({ success: true, message: 'تم تحديث حالة الطلب' });
+});
+
+app.post('/api/admin/orders/delete', requireAdmin, (req, res) => {
+    const { id } = req.body;
+    const data = readOrders();
+    data.orders = data.orders.filter(o => o.id !== id);
+    writeOrders(data);
+    res.json({ success: true, message: 'تم حذف الطلب' });
 });
 
 // ============================================

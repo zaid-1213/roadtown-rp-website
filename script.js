@@ -170,19 +170,33 @@ function toggleCart() {
     }
 }
 
-function checkout() {
+async function checkout() {
     if (cart.length === 0) {
         showNotification('عربة التسوق فارغة', 'error');
         return;
     }
     const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
     showNotification(`جاري إتمام عملية شراء بقيمة ${total.toLocaleString()} ريال`, 'info');
-    setTimeout(() => {
-        showNotification('تم إرسال الطلب بنجاح! سيتم التواصل معك للدفع', 'success');
-        cart = [];
-        updateCartDisplay();
-        closeCart();
-    }, 2000);
+    try {
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: cart, total })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setTimeout(() => {
+                showNotification('تم إرسال الطلب بنجاح! سيتم التواصل معك للدفع', 'success');
+                cart = [];
+                updateCartDisplay();
+                closeCart();
+            }, 1500);
+        } else {
+            showNotification(data.error || 'حدث خطأ في إرسال الطلب', 'error');
+        }
+    } catch (err) {
+        showNotification('حدث خطأ في الاتصال بالسيرفر', 'error');
+    }
 }
 
 // Initialize

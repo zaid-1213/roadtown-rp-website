@@ -82,21 +82,21 @@
                     </div>
                     <div class="pg-form">
                         <h3>أرسل لنا رسالة</h3>
-                        <form>
+                        <form id="contactForm" onsubmit="sendContactMessage(event)">
                             <div class="pg-form-row">
                                 <div class="pg-form-group">
-                                    <input type="text" class="pg-input" placeholder="اسمك في اللعبة" required>
+                                    <input type="text" id="contactName" class="pg-input" placeholder="اسمك في اللعبة" required>
                                 </div>
                                 <div class="pg-form-group">
-                                    <input type="email" class="pg-input" placeholder="البريد الإلكتروني" required>
+                                    <input type="email" id="contactEmail" class="pg-input" placeholder="البريد الإلكتروني" required>
                                 </div>
                             </div>
                             <div class="pg-form-row">
                                 <div class="pg-form-group">
-                                    <input type="text" class="pg-input" placeholder="رقم الحساب في البنك">
+                                    <input type="text" id="contactBankId" class="pg-input" placeholder="رقم الحساب في البنك">
                                 </div>
                                 <div class="pg-form-group">
-                                    <select class="pg-select" required>
+                                    <select id="contactCategory" class="pg-select" required>
                                         <option value="">اختر نوع المشكلة</option>
                                         <option value="bug">بلاغ عن مشكلة</option>
                                         <option value="purchase">استفسار عن شراء</option>
@@ -106,7 +106,7 @@
                                 </div>
                             </div>
                             <div class="pg-form-group">
-                                <textarea class="pg-textarea" placeholder="رسالتك أو طلب الدعم" rows="5" required></textarea>
+                                <textarea id="contactMessage" class="pg-textarea" placeholder="رسالتك أو طلب الدعم" rows="5" required></textarea>
                             </div>
                             <button type="submit" class="pg-submit-btn">📨 إرسال الرسالة</button>
                         </form>
@@ -180,5 +180,37 @@
 
     <script src="script.js"></script>
     <script src="auth.js"></script>
+    <script>
+        async function sendContactMessage(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = '⏳ جاري الإرسال...';
+            try {
+                const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('contactName').value,
+                        email: document.getElementById('contactEmail').value,
+                        bankId: document.getElementById('contactBankId').value,
+                        category: document.getElementById('contactCategory').value,
+                        message: document.getElementById('contactMessage').value
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showNotification('تم إرسال رسالتك بنجاح! سنرد عليك قريباً', 'success');
+                    document.getElementById('contactForm').reset();
+                } else {
+                    showNotification(data.error || 'حدث خطأ', 'error');
+                }
+            } catch (err) {
+                showNotification('حدث خطأ في الإرسال', 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = '📨 إرسال الرسالة';
+        }
+    </script>
 </body>
 </html>
