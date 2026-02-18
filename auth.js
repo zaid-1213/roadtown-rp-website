@@ -7,11 +7,13 @@ let currentUser = null;
 // Detect if running on a static host (no backend)
 const isStaticMode = (() => {
     const host = window.location.hostname;
-    // Backend mode: localhost with port, or Render/Railway deployment
+    // Backend mode: localhost with port, or Render/Railway deployment, or direct IP access
     if (host === 'localhost' || host === '127.0.0.1') return !window.location.port;
     if (host.endsWith('.onrender.com') || host.endsWith('.railway.app')) return false;
-    // Any other host with our backend routes available = not static
-    return true;
+    // Direct IP access with port = backend mode
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(host) && window.location.port) return false;
+    // Any other host - try to detect backend by checking /auth/status
+    return false;
 })();
 
 async function checkAuth() {
